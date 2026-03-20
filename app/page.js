@@ -1,3 +1,4 @@
+import {urlFor} from '../sanity/lib/image'
 import HeaderClient from '../components/HeaderClient'
 import {client} from '../sanity/lib/client'
 import {
@@ -119,10 +120,17 @@ function ServicesBlock({services}) {
         <div className="grid grid4">
           {services?.map((item) => (
             <div className="card" key={item._id}>
-              <div className="cardIcon">✦</div>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </div>
+  {item.image && (
+    <img
+      src={urlFor(item.image).width(400).url()}
+      alt={item.title}
+      className="cardImage"
+    />
+  )}
+
+  <h3>{item.title}</h3>
+  <p>{item.text}</p>
+</div>
           ))}
         </div>
       </div>
