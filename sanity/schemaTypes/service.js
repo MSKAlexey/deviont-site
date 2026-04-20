@@ -1,8 +1,9 @@
-import {defineType, defineField} from 'sanity'
+import {defineField, defineType} from 'sanity'
+import {defineImageField} from './lib/defineImageField.js'
 
 export const service = defineType({
   name: 'service',
-  title: 'Услуги',
+  title: 'Услуги 1С',
   type: 'document',
   fields: [
     defineField({
@@ -17,21 +18,28 @@ export const service = defineType({
       rows: 4,
     }),
     defineField({
-      name: 'order',
-      title: 'Порядок',
-      type: 'number',
-    }),
-    defineField({
       name: 'isVisible',
       title: 'Показывать',
       type: 'boolean',
       initialValue: true,
+      hidden: true,
     }),
-    defineField({
-  name: 'image',
-  title: 'Картинка',
-  type: 'image',
-  options: { hotspot: true },
-}),
+    defineImageField(),
   ],
+  preview: {
+    select: {
+      title: 'title',
+      isVisible: 'isVisible',
+      media: 'image',
+    },
+    prepare({title, isVisible, media}) {
+      const visibilityLabel = isVisible === false ? ' • скрыта' : ''
+
+      return {
+        title: title || 'Без названия',
+        subtitle: `Карточка услуги 1С${visibilityLabel}`,
+        media,
+      }
+    },
+  },
 })

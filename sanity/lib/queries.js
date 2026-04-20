@@ -1,3 +1,211 @@
+const cardsBlockItemsProjection = `
+  items[]{
+    ...,
+    image{
+      ...,
+      alt,
+      asset
+    }
+  }
+`
+
+const listBlockItemsProjection = `
+  items[]{
+    "title": select(_type == "listBlockListItem" => title, null),
+    "description": select(_type == "listBlockListItem" => description, null),
+    "text": select(_type == "listBlockListItem" => text, @),
+    "showImage": select(_type == "listBlockListItem" => coalesce(showImage, true), true),
+    "imageSize": select(_type == "listBlockListItem" => coalesce(imageSize, "medium"), "medium"),
+    "image": select(
+      _type == "listBlockListItem" => image{
+        ...,
+        alt,
+        asset
+      },
+      null
+    )
+  }
+`
+
+const pageBuilderSectionProjection = `
+  ...,
+  "title": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
+    _type in ["textBlock", "textBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
+    _type in ["listBlock", "listBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
+    _type in ["ctaBlock", "ctaBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
+    _type in ["contactBlock", "contactBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
+    title
+  ),
+  "titleContent": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->titleContent,
+    titleContent
+  ),
+  "titleFormatted": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->titleFormatted,
+    titleFormatted
+  ),
+  "titleTypography": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->titleTypography,
+    titleTypography
+  ),
+  "subtitle": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitle,
+    subtitle
+  ),
+  "subtitleContent": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitleContent,
+    subtitleContent
+  ),
+  "subtitleFormatted": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitleFormatted,
+    subtitleFormatted
+  ),
+  "subtitleTypography": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitleTypography,
+    subtitleTypography
+  ),
+  "preButtonText": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->preButtonText,
+    preButtonText
+  ),
+  "preButtonContent": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->preButtonContent,
+    preButtonContent
+  ),
+  "preButtonTextFormatted": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->preButtonTextFormatted,
+    preButtonTextFormatted
+  ),
+  "preButtonTypography": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->preButtonTypography,
+    preButtonTypography
+  ),
+  "preButtonIconPreset": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->preButtonIconPreset,
+    preButtonIconPreset
+  ),
+  "preButtonCustomIcon": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->preButtonCustomIcon,
+    preButtonCustomIcon
+  ),
+  "image": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->image,
+    image
+  ),
+  "primaryButtonText": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->primaryButtonText,
+    primaryButtonText
+  ),
+  "primaryButtonContent": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->primaryButtonContent,
+    primaryButtonContent
+  ),
+  "primaryButtonTextFormatted": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->primaryButtonTextFormatted,
+    primaryButtonTextFormatted
+  ),
+  "primaryButtonTypography": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->primaryButtonTypography,
+    primaryButtonTypography
+  ),
+  "secondaryButtonText": select(
+    _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->secondaryButtonText,
+    secondaryButtonText
+  ),
+  "text": select(
+    _type in ["textBlock", "textBlockItem"] && defined(contentDocument->_id) => contentDocument->text,
+    _type in ["ctaBlock", "ctaBlockItem"] && defined(contentDocument->_id) => contentDocument->text,
+    _type in ["contactBlock", "contactBlockItem"] && defined(contentDocument->_id) => contentDocument->text,
+    text
+  ),
+  "buttonText": select(
+    _type in ["ctaBlock", "ctaBlockItem"] && defined(contentDocument->_id) => contentDocument->buttonText,
+    _type in ["contactBlock", "contactBlockItem"] && defined(contentDocument->_id) => contentDocument->buttonText,
+    buttonText
+  ),
+  "items": select(
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->items[]{
+      ...,
+      image{
+        ...,
+        alt,
+        asset
+      }
+    },
+    _type in ["cardsBlock", "cardsBlockItem"] => items[]{
+      ...,
+      image{
+        ...,
+        alt,
+        asset
+      }
+    },
+    _type in ["listBlock", "listBlockItem"] && defined(contentDocument->_id) => contentDocument->${listBlockItemsProjection.trim()},
+    _type in ["listBlock", "listBlockItem"] => ${listBlockItemsProjection.trim()},
+    items
+  ),
+  "contentBlock": select(
+    _type == "reference" && @->._type == "heroBlockDocument" => @->{
+      _id,
+      "_type": "heroBlock",
+      title,
+      titleContent,
+      titleFormatted,
+      titleTypography,
+      subtitle,
+      subtitleContent,
+      subtitleFormatted,
+      subtitleTypography,
+      preButtonText,
+      preButtonContent,
+      preButtonTextFormatted,
+      preButtonTypography,
+      preButtonIconPreset,
+      preButtonCustomIcon,
+      image,
+      primaryButtonText,
+      primaryButtonContent,
+      primaryButtonTextFormatted,
+      primaryButtonTypography,
+      secondaryButtonText
+    },
+    _type == "reference" && @->._type == "textBlockDocument" => @->{
+      _id,
+      "_type": "textBlock",
+      title,
+      text
+    },
+    _type == "reference" && @->._type == "cardsBlockDocument" => @->{
+      _id,
+      "_type": "cardsBlock",
+      title,
+      ${cardsBlockItemsProjection}
+    },
+    _type == "reference" && @->._type == "listBlockDocument" => @->{
+      _id,
+      "_type": "listBlock",
+      title,
+      ${listBlockItemsProjection}
+    },
+    _type == "reference" && @->._type == "ctaBlockDocument" => @->{
+      _id,
+      "_type": "ctaBlock",
+      title,
+      text,
+      buttonText
+    },
+    _type == "reference" && @->._type == "contactBlockDocument" => @->{
+      _id,
+      "_type": "contactBlock",
+      title,
+      text,
+      buttonText
+    }
+  )
+`
+
 export const siteSettingsQuery = `*[_type == "siteSettings" && _id == "siteSettings"][0]{
   companyName,
   subtitle,
@@ -5,38 +213,16 @@ export const siteSettingsQuery = `*[_type == "siteSettings" && _id == "siteSetti
   email,
   city,
   domain,
-  heroTitle,
   heroText,
-  logo
-}`
-
-export const servicesQuery = `*[_type == "service" && isVisible == true] | order(order asc){
-  _id,
-  title,
-  text,
-  image
-}`
-
-export const productsQuery = `*[_type == "product" && isVisible == true] | order(order asc){
-  _id,
-  title,
-  text
-}`
-
-export const tasksQuery = `*[_type == "taskItem" && isVisible == true] | order(order asc){
-  _id,
-  title
-}`
-
-export const articlesQuery = `*[_type == "article" && isVisible == true] | order(order asc){
-  _id,
-  title
-}`
-
-export const pageSectionsQuery = `*[_type == "pageSection" && isVisible == true] | order(order asc){
-  _id,
-  title,
-  sectionKey,
-  order,
-  isVisible
+  heroButtonSecondary,
+  steps,
+  supportText,
+  supportPrice,
+  advantages,
+  contactText,
+  contactButtonText,
+  logo,
+  "sections": coalesce(sections, [])[]{
+    ${pageBuilderSectionProjection}
+  }
 }`

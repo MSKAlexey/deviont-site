@@ -1,4 +1,5 @@
-import {defineType, defineField} from 'sanity'
+import {defineField, defineType} from 'sanity'
+import {defineImageField} from './lib/defineImageField.js'
 
 export const product = defineType({
   name: 'product',
@@ -20,12 +21,22 @@ export const product = defineType({
       name: 'order',
       title: 'Порядок',
       type: 'number',
+      hidden: true,
     }),
     defineField({
       name: 'isVisible',
       title: 'Показывать',
       type: 'boolean',
       initialValue: true,
+      hidden: true,
     }),
+    defineImageField(),
   ],
+  preview: {
+    select: {
+      title: 'title',
+      subtitle: 'text',
+      media: 'image',
+    },
+  },
 })

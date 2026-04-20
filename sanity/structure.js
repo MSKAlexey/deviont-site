@@ -1,20 +1,31 @@
-import {StructureBuilder} from 'sanity/structure'
-
 export const structure = (S) =>
   S.list()
-    .title('Контент')
+    .title('Навигация')
     .items([
       S.listItem()
-        .title('Настройки сайта')
+        .title('Сайт')
         .child(
-          S.document()
-            .schemaType('siteSettings')
-            .documentId('siteSettings')
+          S.list()
+            .title('Сайт')
+            .items([
+              S.listItem()
+                .title('Главная страница')
+                .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
+            ])
         ),
 
-      S.documentTypeListItem('pageSection').title('Секции страницы'),
-      S.documentTypeListItem('service').title('Услуги'),
-      S.documentTypeListItem('product').title('Решения 1С'),
-      S.documentTypeListItem('taskItem').title('Примеры задач'),
-      S.documentTypeListItem('article').title('Статьи'),
+      S.listItem()
+        .title('Контент')
+        .child(
+          S.list()
+            .title('Контент')
+            .items([
+              S.documentTypeListItem('heroBlockDocument').title('Главный экран'),
+              S.documentTypeListItem('textBlockDocument').title('Текстовые блоки'),
+              S.documentTypeListItem('cardsBlockDocument').title('Блоки карточек'),
+              S.documentTypeListItem('listBlockDocument').title('Списки'),
+              S.documentTypeListItem('ctaBlockDocument').title('CTA блоки'),
+              S.documentTypeListItem('contactBlockDocument').title('Контактные блоки'),
+            ])
+        ),
     ])

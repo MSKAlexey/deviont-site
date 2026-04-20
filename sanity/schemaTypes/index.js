@@ -1,9 +1,24 @@
-import {siteSettings} from './siteSettings'
-import {service} from './service'
-import {product} from './product'
-import {article} from './article'
-import {taskItem} from './taskItem'
-import {pageSection} from './pageSection'
+import {siteSettings} from './siteSettings.js'
+import {service} from './service.js'
+import {product} from './product.js'
+import {article} from './article.js'
+import {taskItem} from './taskItem.js'
+import {pageSection} from './pageSection.js'
+import {
+  cardsBlock,
+  cardsBlockItem,
+  cardsBlockDocument,
+  contactBlock,
+  contactBlockDocument,
+  ctaBlock,
+  ctaBlockDocument,
+  heroBlock,
+  heroBlockDocument,
+  listBlock,
+  listBlockDocument,
+  textBlock,
+  textBlockDocument,
+} from './pageBuilderBlocks.js'
 
 export const schemaTypes = [
   siteSettings,
@@ -11,5 +26,18 @@ export const schemaTypes = [
   product,
   article,
   taskItem,
+  cardsBlockItem,
+  heroBlock,
+  textBlock,
+  cardsBlock,
+  listBlock,
+  ctaBlock,
+  contactBlock,
+  heroBlockDocument,
+  textBlockDocument,
+  cardsBlockDocument,
+  listBlockDocument,
+  ctaBlockDocument,
+  contactBlockDocument,
   pageSection,
 ]
