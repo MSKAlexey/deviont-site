@@ -1310,6 +1310,17 @@ export const cardsBlockItem = defineType({
       description: 'Для каждой строки выберите тип: иконка подставится автоматически на сайте.',
       of: [createCardsBlockDetailArrayMember()],
     }),
+    defineField({
+      name: 'detailTypography',
+      title: 'Шрифт строк',
+      type: 'object',
+      description: 'Настройка применяется к тексту всех строк этой карточки.',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: createHeroTypographySettingFields(),
+    }),
     defineImageField(),
   ],
   preview: {

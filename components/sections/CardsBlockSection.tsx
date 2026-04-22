@@ -38,6 +38,14 @@ const detailIconConfig = {
   },
 }
 
+const detailFontFamilyMap = {
+  'segoe-ui': "'Segoe UI', 'Noto Sans', sans-serif",
+  'noto-sans': "'Noto Sans', 'Segoe UI', sans-serif",
+  georgia: "Georgia, 'Times New Roman', serif",
+  'trebuchet-ms': "'Trebuchet MS', 'Segoe UI', sans-serif",
+  'courier-new': "'Courier New', monospace",
+}
+
 function renderCardDescription(text) {
   if (typeof text !== 'string' || text.length === 0) {
     return null
@@ -98,19 +106,46 @@ function getCardDetails(details) {
     .filter((detail) => detail.text.length > 0)
 }
 
-function renderCardDetails(details) {
+function resolveDetailTextStyle(typography) {
+  if (!typography || typeof typography !== 'object') {
+    return undefined
+  }
+
+  const style = {
+    fontFamily:
+      typography.fontFamily && typography.fontFamily !== 'default'
+        ? detailFontFamilyMap[typography.fontFamily]
+        : undefined,
+    fontWeight:
+      typography.fontWeight && typography.fontWeight !== 'default'
+        ? typography.fontWeight
+        : undefined,
+    fontSize:
+      typeof typography.fontSize === 'number' && typography.fontSize > 0
+        ? typography.fontSize
+        : undefined,
+  }
+
+  return Object.values(style).some((value) => value !== undefined) ? style : undefined
+}
+
+function renderCardDetails(details, typography) {
   const resolvedDetails = getCardDetails(details)
 
   if (resolvedDetails.length === 0) {
     return null
   }
 
+  const detailTextStyle = resolveDetailTextStyle(typography)
+
   return (
     <ul className="builderCardDetails">
       {resolvedDetails.map((detail, index) => (
         <li className="builderCardDetail" key={detail._key || `${detail.type}-${index}`}>
           {renderDetailIcon(detail.type)}
-          <span className="builderCardDetailText">{detail.text}</span>
+          <span className="builderCardDetailText" style={detailTextStyle}>
+            {detail.text}
+          </span>
         </li>
       ))}
     </ul>
@@ -151,7 +186,7 @@ export default function CardsBlockSection({block, sectionId}) {
               <div className="builderCardBody">
                 <h3 className="builderCardTitle">{item.title}</h3>
                 {renderCardDescription(item.text)}
-                {renderCardDetails(item.details)}
+                {renderCardDetails(item.details, item.detailTypography)}
               </div>
             </article>
           ))}
