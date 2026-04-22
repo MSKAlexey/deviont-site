@@ -5,6 +5,14 @@ import HeroTextConfigInput from '../components/HeroTextConfigInput.js'
 import {defineImageField} from './lib/defineImageField.js'
 
 const API_VERSION = '2026-03-27'
+const cardsBlockDetailTypeOptions = [
+  {title: 'Цена', value: 'price'},
+  {title: 'Срок', value: 'duration'},
+  {title: 'Пример', value: 'example'},
+]
+const cardsBlockDetailTypeLabels = Object.fromEntries(
+  cardsBlockDetailTypeOptions.map((item) => [item.value, item.title])
+)
 const CARDS_BLOCK_DOCUMENT_PREVIEW_QUERY = `
   coalesce(
     *[_id == $draftId][0]{
@@ -655,6 +663,45 @@ function createLinkedTextFields() {
   ]
 }
 
+function createCardsBlockDetailArrayMember() {
+  return defineArrayMember({
+    name: 'cardsBlockDetail',
+    title: 'Строка',
+    type: 'object',
+    fields: [
+      defineField({
+        name: 'type',
+        title: 'Тип строки',
+        type: 'string',
+        initialValue: 'price',
+        options: {
+          list: cardsBlockDetailTypeOptions,
+          layout: 'radio',
+        },
+        validation: (Rule) => Rule.required(),
+      }),
+      defineField({
+        name: 'text',
+        title: 'Текст',
+        type: 'string',
+        validation: (Rule) => Rule.required(),
+      }),
+    ],
+    preview: {
+      select: {
+        type: 'type',
+        title: 'text',
+      },
+      prepare({type, title}) {
+        return {
+          title: title || 'Строка без текста',
+          subtitle: cardsBlockDetailTypeLabels[type] || 'Тип не выбран',
+        }
+      },
+    },
+  })
+}
+
 function createCardsItemsField(isLinkedMode = false) {
   return defineField({
     name: 'items',
@@ -1250,10 +1297,18 @@ export const cardsBlockItem = defineType({
     }),
     defineField({
       name: 'text',
-      title: 'Текст',
+      title: 'Описание',
       type: 'text',
       rows: 4,
+      description: 'Короткий текст под заголовком. Строки с ценой, сроком и примером добавляются ниже отдельным списком.',
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'details',
+      title: 'Строки карточки',
+      type: 'array',
+      description: 'Для каждой строки выберите тип: иконка подставится автоматически на сайте.',
+      of: [createCardsBlockDetailArrayMember()],
     }),
     defineImageField(),
   ],
@@ -1261,12 +1316,21 @@ export const cardsBlockItem = defineType({
     select: {
       title: 'title',
       subtitle: 'text',
+      details: 'details',
       media: 'image',
     },
-    prepare({title, subtitle, media}) {
+    prepare({title, subtitle, details, media}) {
+      const detailsCount = Array.isArray(details)
+        ? details.filter((detail) => typeof detail?.text === 'string' && detail.text.trim()).length
+        : 0
+      const subtitleParts = [
+        truncateText(subtitle),
+        detailsCount > 0 ? `${detailsCount} строк` : null,
+      ].filter(Boolean)
+
       return {
         title: title || 'Карточка без названия',
-        subtitle: truncateText(subtitle),
+        subtitle: subtitleParts.join(' / '),
         media,
       }
     },
