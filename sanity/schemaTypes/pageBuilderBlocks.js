@@ -205,6 +205,12 @@ const heroTypographyFontWeightOptions = [
   {title: '900 — максимально жирный', value: '900'},
 ]
 
+const cardDetailTypographyDefaults = {
+  fontFamily: 'segoe-ui',
+  fontWeight: '600',
+  fontSize: 15,
+}
+
 function createHeroPortableTextField(name, title, hidden, rows = 3, description, fieldComponent) {
   return defineField({
     name,
@@ -237,13 +243,13 @@ function createHeroPortableTextField(name, title, hidden, rows = 3, description,
   })
 }
 
-function createHeroTypographySettingFields() {
+function createHeroTypographySettingFields(defaults = {}) {
   return [
     defineField({
       name: 'fontFamily',
       title: 'Шрифт',
       type: 'string',
-      initialValue: 'default',
+      initialValue: defaults.fontFamily || 'default',
       options: {
         list: heroTypographyFontFamilyOptions,
         layout: 'dropdown',
@@ -253,7 +259,7 @@ function createHeroTypographySettingFields() {
       name: 'fontWeight',
       title: 'Толщина',
       type: 'string',
-      initialValue: 'default',
+      initialValue: defaults.fontWeight || 'default',
       options: {
         list: heroTypographyFontWeightOptions,
         layout: 'dropdown',
@@ -263,6 +269,7 @@ function createHeroTypographySettingFields() {
       name: 'fontSize',
       title: 'Размер шрифта, px',
       type: 'number',
+      initialValue: defaults.fontSize,
       validation: (Rule) => Rule.min(1).max(160),
     }),
   ]
@@ -1316,6 +1323,7 @@ export const cardsBlockItem = defineType({
       title: 'Шрифт строк',
       type: 'object',
       description: 'Настройка применяется к тексту всех строк этой карточки.',
+      initialValue: cardDetailTypographyDefaults,
       options: {
         collapsible: true,
         collapsed: true,
@@ -1323,7 +1331,7 @@ export const cardsBlockItem = defineType({
       components: {
         input: CardDetailTypographyInput,
       },
-      fields: createHeroTypographySettingFields(),
+      fields: createHeroTypographySettingFields(cardDetailTypographyDefaults),
     }),
     defineImageField(),
   ],

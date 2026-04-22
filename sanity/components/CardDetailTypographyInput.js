@@ -1,5 +1,12 @@
+import {useEffect} from 'react'
 import {Grid} from '@sanity/ui'
-import {ObjectInputMember} from 'sanity'
+import {ObjectInputMember, set} from 'sanity'
+
+const defaultTypography = {
+  fontFamily: 'segoe-ui',
+  fontWeight: '600',
+  fontSize: 15,
+}
 
 function getFieldMember(members, name) {
   return members.find((member) => member.kind === 'field' && member.name === name)
@@ -25,9 +32,35 @@ function renderMember(props, member) {
 }
 
 export default function CardDetailTypographyInput(props) {
+  const {onChange, readOnly} = props
+  const value = props.value || {}
+  const {fontFamily, fontWeight, fontSize} = value
   const fontFamilyMember = getFieldMember(props.members, 'fontFamily')
   const fontWeightMember = getFieldMember(props.members, 'fontWeight')
   const fontSizeMember = getFieldMember(props.members, 'fontSize')
+
+  useEffect(() => {
+    if (readOnly) {
+      return
+    }
+
+    const nextValue = {
+      fontFamily: !fontFamily || fontFamily === 'default' ? defaultTypography.fontFamily : fontFamily,
+      fontWeight: !fontWeight || fontWeight === 'default' ? defaultTypography.fontWeight : fontWeight,
+      fontSize:
+        typeof fontSize === 'number' && fontSize > 0
+          ? fontSize
+          : defaultTypography.fontSize,
+    }
+
+    if (
+      nextValue.fontFamily !== fontFamily ||
+      nextValue.fontWeight !== fontWeight ||
+      nextValue.fontSize !== fontSize
+    ) {
+      onChange(set(nextValue))
+    }
+  }, [fontFamily, fontSize, fontWeight, onChange, readOnly])
 
   return (
     <Grid columns={3} gap={3} style={{alignItems: 'end'}}>
