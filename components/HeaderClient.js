@@ -64,6 +64,10 @@ function buildNavigationItems(sections) {
     .filter(Boolean)
 }
 
+function normalizePhoneHref(phone) {
+  return `tel:${phone.replace(/[^\d+]/g, '')}`
+}
+
 function LogoLink({settings, companyName, subtitle}) {
   const pathname = usePathname()
 
@@ -98,6 +102,7 @@ function LogoLink({settings, companyName, subtitle}) {
 
 export default function HeaderClient({settings, sections}) {
   const navigationItems = buildNavigationItems(sections)
+  const phone = settings?.phone || '+7 (999) 000-00-00'
 
   return (
     <header className="header">
@@ -116,8 +121,8 @@ export default function HeaderClient({settings, sections}) {
           ))}
         </nav>
 
-        <a className="phone" href={`tel:${settings?.phone || '+79990000000'}`}>
-          {settings?.phone || '+7 (999) 000-00-00'}
+        <a className="phone" href={normalizePhoneHref(phone)}>
+          {phone}
         </a>
       </div>
     </header>
