@@ -196,13 +196,13 @@ const heroTypographyFontFamilyOptions = [
 
 const heroTypographyFontWeightOptions = [
   {title: 'По умолчанию', value: 'default'},
-  {title: '300', value: '300'},
-  {title: '400', value: '400'},
-  {title: '500', value: '500'},
-  {title: '600', value: '600'},
-  {title: '700', value: '700'},
-  {title: '800', value: '800'},
-  {title: '900', value: '900'},
+  {title: '300 — тонкий', value: '300'},
+  {title: '400 — обычный', value: '400'},
+  {title: '500 — чуть плотнее', value: '500'},
+  {title: '600 — полужирный', value: '600'},
+  {title: '700 — жирный', value: '700'},
+  {title: '800 — очень жирный', value: '800'},
+  {title: '900 — максимально жирный', value: '900'},
 ]
 
 function createHeroPortableTextField(name, title, hidden, rows = 3, description, fieldComponent) {
@@ -251,7 +251,7 @@ function createHeroTypographySettingFields() {
     }),
     defineField({
       name: 'fontWeight',
-      title: 'Вес',
+      title: 'Толщина',
       type: 'string',
       initialValue: 'default',
       options: {
