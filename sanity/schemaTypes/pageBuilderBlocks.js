@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react'
 import {defineArrayMember, defineField, defineType, useClient} from 'sanity'
+import CardDetailTypographyInput from '../components/CardDetailTypographyInput.js'
 import HeroFieldWithoutTitle from '../components/HeroFieldWithoutTitle.js'
 import HeroTextConfigInput from '../components/HeroTextConfigInput.js'
 import {defineImageField} from './lib/defineImageField.js'
@@ -1318,6 +1319,9 @@ export const cardsBlockItem = defineType({
       options: {
         collapsible: true,
         collapsed: true,
+      },
+      components: {
+        input: CardDetailTypographyInput,
       },
       fields: createHeroTypographySettingFields(),
     }),
