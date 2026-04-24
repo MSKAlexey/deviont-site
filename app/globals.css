@@ -321,7 +321,7 @@ textarea {
 
 .sectionCardsGrid {
   display: grid;
-  gap: 20px;
+  gap: 18px;
 }
 
 .sectionCardsGridThree {
@@ -333,15 +333,15 @@ textarea {
 }
 
 .infoCard {
-  padding: 28px;
+  padding: 24px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
 }
 
 .infoCard h3 {
-  margin: 0 0 14px;
+  margin: 0 0 12px;
   font-size: 1.25rem;
   line-height: 1.35;
 }
@@ -349,7 +349,7 @@ textarea {
 .infoCard p {
   margin: 0;
   font-size: 1rem;
-  line-height: 1.7;
+  line-height: 1.62;
   color: var(--muted);
 }
 
@@ -360,7 +360,7 @@ textarea {
 .workflowGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -368,28 +368,28 @@ textarea {
 
 .workflowCard {
   display: grid;
-  gap: 16px;
+  gap: 14px;
   align-content: start;
   height: 100%;
   padding: 24px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.045);
 }
 
 .workflowCardWithImage {
-  gap: 0;
+  gap: 14px;
 }
 
 .workflowCardWithSmallImage {
-  gap: 0;
+  gap: 12px;
 }
 
 .workflowCardMedia {
   width: 100%;
-  height: 110px;
-  margin: 0 0 12px;
+  height: 104px;
+  margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
@@ -411,7 +411,7 @@ textarea {
 }
 
 .workflowCardMediaLarge {
-  height: 180px;
+  height: 164px;
 }
 
 .workflowCardImage {
@@ -423,23 +423,23 @@ textarea {
 
 .workflowCardCopy {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   align-content: start;
 }
 
 .workflowCardWithSmallImage .workflowCardCopy {
-  gap: 10px;
+  gap: 8px;
 }
 
 .workflowCardHeader {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .workflowCardImageSmall {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   max-width: none;
   max-height: none;
 }
@@ -469,7 +469,7 @@ textarea {
 }
 
 .workflowCardText {
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
 .builderTextCard {
@@ -483,14 +483,14 @@ textarea {
 .builderCard {
   display: grid;
   grid-template-rows: auto 1fr;
-  gap: 16px;
+  gap: 14px;
   height: 100%;
   padding: 24px;
 }
 
 .builderCardBody {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   align-content: start;
 }
 
@@ -511,27 +511,27 @@ textarea {
 .builderCard .builderCardText {
   margin: 0;
   font-size: 0.98rem;
-  line-height: 1.58;
+  line-height: 1.56;
   color: var(--muted);
   white-space: pre-line;
 }
 
 .builderCardDetails {
   display: grid;
-  gap: 7px;
-  margin: 6px 0 0;
+  gap: 8px;
+  margin: 4px 0 0;
   padding: 0;
   list-style: none;
 }
 
 .builderCardDetail {
   display: grid;
-  grid-template-columns: 46px minmax(0, 1fr);
+  grid-template-columns: 48px minmax(0, 1fr);
   align-items: center;
-  min-height: 44px;
+  min-height: 48px;
   overflow: hidden;
   border: 1px solid #dfe6ee;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #f9fbfd;
 }
 
@@ -539,7 +539,7 @@ textarea {
   display: grid;
   place-items: center;
   align-self: stretch;
-  min-height: 44px;
+  min-height: 48px;
   border-right: 1px solid #e6edf4;
   background: #f4f8fc;
 }
@@ -550,7 +550,10 @@ textarea {
 }
 
 .builderCardDetailIconPrice {
-  color: #2563eb;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .builderCardDetailIconDuration {
@@ -563,18 +566,18 @@ textarea {
 
 .builderCardDetailText {
   min-width: 0;
-  padding: 8px 14px;
+  padding: 8px 14px 8px 12px;
   color: var(--text);
   font-size: 15px;
   font-weight: 600;
-  line-height: 1.38;
+  line-height: 1.34;
   overflow-wrap: anywhere;
 }
 
 .builderCardMedia {
   overflow: hidden;
-  aspect-ratio: 16 / 10;
-  min-height: 168px;
+  aspect-ratio: 16 / 9;
+  min-height: 0;
   border-radius: 18px;
   background: #e8eef4;
 }
@@ -589,8 +592,8 @@ textarea {
 .builderCardMediaPlaceholder::after {
   content: '';
   position: absolute;
-  inset: 16px;
-  border-radius: 14px;
+  inset: 14px;
+  border-radius: 12px;
   background:
     linear-gradient(135deg, rgba(35, 72, 103, 0.08) 0%, rgba(35, 72, 103, 0) 58%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 100%);
