@@ -1,4 +1,5 @@
 import CardsBlockSection from './CardsBlockSection'
+import CertificatesBlockSection from './CertificatesBlockSection'
 import ContactsSection from './ContactsSection'
 import CtaSection from './CtaSection'
 import HeroSection from './HeroSection'
@@ -24,6 +25,13 @@ const blockRegistry = {
   },
   cardsBlock: {
     component: CardsBlockSection,
+    selectProps: ({section, sectionId}) => ({
+      block: section,
+      sectionId,
+    }),
+  },
+  certificatesBlock: {
+    component: CertificatesBlockSection,
     selectProps: ({section, sectionId}) => ({
       block: section,
       sectionId,

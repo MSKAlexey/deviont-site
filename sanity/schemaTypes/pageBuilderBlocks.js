@@ -111,6 +111,10 @@ function hasLegacyCardsContent(parent) {
   return getItemsCount(parent?.items) > 0
 }
 
+function hasLegacyCertificatesContent(parent) {
+  return getItemsCount(parent?.items) > 0
+}
+
 function hasLegacyHeroContent(parent) {
   return Boolean(
     parent?.titleContent ||
@@ -777,6 +781,142 @@ function createCardsDocumentFields() {
   ]
 }
 
+function createCertificateItemArrayMember() {
+  return defineArrayMember({
+    name: 'certificateItem',
+    title: 'Сертификат',
+    type: 'object',
+    fields: [
+      defineField({
+        name: 'title',
+        title: 'Название',
+        type: 'string',
+        validation: (Rule) => Rule.required(),
+      }),
+      defineField({
+        name: 'issuer',
+        title: 'Кем выдан',
+        type: 'string',
+        validation: (Rule) => Rule.required(),
+      }),
+      defineField({
+        name: 'issuedAt',
+        title: 'Дата',
+        type: 'date',
+        options: {
+          dateFormat: 'DD.MM.YYYY',
+        },
+      }),
+      defineField({
+        name: 'image',
+        title: 'Превью',
+        type: 'image',
+        options: {hotspot: true},
+        fields: [
+          defineField({
+            name: 'alt',
+            title: 'Alt',
+            type: 'string',
+          }),
+        ],
+        validation: (Rule) => Rule.required(),
+      }),
+      defineField({
+        name: 'file',
+        title: 'Файл',
+        type: 'file',
+        options: {
+          accept: '.pdf',
+        },
+      }),
+    ],
+    preview: {
+      select: {
+        title: 'title',
+        issuer: 'issuer',
+        issuedAt: 'issuedAt',
+        media: 'image',
+      },
+      prepare({title, issuer, issuedAt, media}) {
+        const subtitleParts = [issuer, issuedAt].filter(Boolean)
+
+        return {
+          title: title || 'Сертификат без названия',
+          subtitle: subtitleParts.join(' / '),
+          media,
+        }
+      },
+    },
+  })
+}
+
+function createCertificatesItemsField(isLinkedMode = false) {
+  return defineField({
+    name: 'items',
+    title: 'Сертификаты',
+    type: 'array',
+    of: [createCertificateItemArrayMember()],
+    hidden: isLinkedMode
+      ? ({parent}) =>
+          Boolean(parent?.contentDocument?._ref) || !hasLegacyCertificatesContent(parent)
+      : false,
+    validation: (Rule) =>
+      Rule.custom((value, context) => {
+        if (
+          isLinkedMode &&
+          (context.parent?.contentDocument?._ref || !hasLegacyCertificatesContent(context.parent))
+        ) {
+          return true
+        }
+
+        return Array.isArray(value) && value.length > 0
+          ? true
+          : 'Добавьте хотя бы один сертификат'
+      }),
+  })
+}
+
+function createCertificatesFields() {
+  return [
+    createContentDocumentField(
+      'certificatesBlockDocument',
+      'Блок сертификатов',
+      hasLegacyCertificatesContent
+    ),
+    defineField({
+      name: 'title',
+      title: 'Заголовок',
+      type: 'string',
+      hidden: ({parent}) =>
+        Boolean(parent?.contentDocument?._ref) || !hasLegacyCertificatesContent(parent),
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          if (
+            context.parent?.contentDocument?._ref ||
+            !hasLegacyCertificatesContent(context.parent)
+          ) {
+            return true
+          }
+
+          return value ? true : 'Заполните заголовок'
+        }),
+    }),
+    createCertificatesItemsField(true),
+  ]
+}
+
+function createCertificatesDocumentFields() {
+  return [
+    defineField({
+      name: 'title',
+      title: 'Заголовок',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    }),
+    createCertificatesItemsField(false),
+  ]
+}
+
 function createListItemArrayMember() {
   return defineArrayMember({
     name: 'listBlockListItem',
@@ -1130,6 +1270,23 @@ const cardsPreview = {
   },
 }
 
+const certificatesPreview = {
+  select: {
+    title: 'title',
+    items: 'items',
+    media: 'items.0.image',
+  },
+  prepare({title, items, media}) {
+    const resolvedItemsCount = getItemsCount(items)
+
+    return {
+      title: title || 'Сертификаты',
+      subtitle: `${resolvedItemsCount} сертификатов`,
+      media,
+    }
+  },
+}
+
 const listPreview = {
   select: {
     title: 'title',
@@ -1244,6 +1401,28 @@ const cardsBlockEditorPreview = {
       title: resolvePreviewTitle(adminTitle, title, 'Блок карточек'),
       subtitle: `${resolvedItemsCount} карточек`,
       media,
+    }
+  },
+}
+
+const certificatesBlockEditorPreview = {
+  select: {
+    adminTitle: 'adminTitle',
+    title: 'title',
+    linkedTitle: 'contentDocument.title',
+    itemsCount: 'items.length',
+    linkedItemsCount: 'contentDocument.items.length',
+    media: 'items.0.image',
+    linkedMedia: 'contentDocument.items.0.image',
+  },
+  prepare({adminTitle, title, linkedTitle, itemsCount, linkedItemsCount, media, linkedMedia}) {
+    const resolvedItemsCount =
+      typeof linkedItemsCount === 'number' ? linkedItemsCount : getItemsCount(itemsCount)
+
+    return {
+      title: resolvePreviewTitle(adminTitle, title || linkedTitle, 'Сертификаты'),
+      subtitle: `${resolvedItemsCount} сертификатов`,
+      media: media || linkedMedia,
     }
   },
 }
@@ -1387,6 +1566,14 @@ export const cardsBlock = defineType({
   },
 })
 
+export const certificatesBlock = defineType({
+  name: 'certificatesBlock',
+  title: 'Сертификаты',
+  type: 'object',
+  fields: [defineAdminTitleField(), ...createCertificatesFields(), defineIsActiveField()],
+  preview: certificatesBlockEditorPreview,
+})
+
 export const listBlock = defineType({
   name: 'listBlock',
   title: 'Блок списка',
@@ -1439,6 +1626,14 @@ export const cardsBlockDocument = defineType({
   components: {
     preview: CardsBlockPreview,
   },
+})
+
+export const certificatesBlockDocument = defineType({
+  name: 'certificatesBlockDocument',
+  title: 'Сертификаты',
+  type: 'document',
+  fields: createCertificatesDocumentFields(),
+  preview: certificatesPreview,
 })
 
 export const listBlockDocument = defineType({

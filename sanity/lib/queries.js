@@ -9,6 +9,23 @@ const cardsBlockItemsProjection = `
   }
 `
 
+const certificatesBlockItemsProjection = `
+  items[]{
+    ...,
+    image{
+      ...,
+      alt,
+      asset
+    },
+    file{
+      asset->{
+        url,
+        originalFilename
+      }
+    }
+  }
+`
+
 const listBlockItemsProjection = `
   items[]{
     "title": select(_type == "listBlockListItem" => title, null),
@@ -33,6 +50,7 @@ const pageBuilderSectionProjection = `
     _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
     _type in ["textBlock", "textBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
     _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
+    _type in ["certificatesBlock", "certificatesBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
     _type in ["listBlock", "listBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
     _type in ["ctaBlock", "ctaBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
     _type in ["contactBlock", "contactBlockItem"] && defined(contentDocument->_id) => contentDocument->title,
@@ -142,6 +160,8 @@ const pageBuilderSectionProjection = `
         asset
       }
     },
+    _type in ["certificatesBlock", "certificatesBlockItem"] && defined(contentDocument->_id) => contentDocument->${certificatesBlockItemsProjection.trim()},
+    _type in ["certificatesBlock", "certificatesBlockItem"] => ${certificatesBlockItemsProjection.trim()},
     _type in ["listBlock", "listBlockItem"] && defined(contentDocument->_id) => contentDocument->${listBlockItemsProjection.trim()},
     _type in ["listBlock", "listBlockItem"] => ${listBlockItemsProjection.trim()},
     items
@@ -182,6 +202,12 @@ const pageBuilderSectionProjection = `
       "_type": "cardsBlock",
       title,
       ${cardsBlockItemsProjection}
+    },
+    _type == "reference" && @->._type == "certificatesBlockDocument" => @->{
+      _id,
+      "_type": "certificatesBlock",
+      title,
+      ${certificatesBlockItemsProjection}
     },
     _type == "reference" && @->._type == "listBlockDocument" => @->{
       _id,

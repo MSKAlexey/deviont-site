@@ -8,6 +8,7 @@ const sectionTypeIds = {
   tasks: 'tasks',
   articles: 'knowledge',
   knowledge: 'knowledge',
+  certificates: 'certificates',
   cta: 'cta',
   contacts: 'contacts',
 }
@@ -20,6 +21,7 @@ const titledSectionIds = {
   'почему вам можно доверять': 'advantages',
   'решения 1с': 'products',
   'примеры задач': 'tasks',
+  'сертификаты': 'certificates',
   'статьи': 'knowledge',
   'связаться': 'contacts',
 }

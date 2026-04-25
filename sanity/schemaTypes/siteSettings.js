@@ -192,6 +192,14 @@ export const siteSettings = defineType({
           },
         }),
         defineArrayMember({
+          name: 'certificatesBlockItem',
+          type: 'certificatesBlock',
+          title: 'Сертификаты',
+          components: {
+            item: CardsBlockArrayItem,
+          },
+        }),
+        defineArrayMember({
           name: 'listBlockItem',
           type: 'listBlock',
           title: 'Блок списка',
