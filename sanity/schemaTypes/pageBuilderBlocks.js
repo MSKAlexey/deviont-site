@@ -227,6 +227,18 @@ const cardDescriptionTypographyDefaults = {
   fontSize: 15,
 }
 
+const cardsBlockTitleTypographyDefaults = {
+  fontFamily: 'segoe-ui',
+  fontWeight: '700',
+  fontSize: 40,
+}
+
+const cardsBlockSubtitleTypographyDefaults = {
+  fontFamily: 'segoe-ui',
+  fontWeight: '400',
+  fontSize: 17,
+}
+
 function createHeroPortableTextField(name, title, hidden, rows = 3, description, fieldComponent) {
   return defineField({
     name,
@@ -752,24 +764,43 @@ function createCardsItemsField(isLinkedMode = false) {
   })
 }
 
-function createCardsFields() {
+function createCardsTypographyField(name, title, description, defaults, hidden = false) {
+  return defineField({
+    name,
+    title,
+    type: 'object',
+    description,
+    hidden,
+    initialValue: defaults,
+    options: {
+      collapsible: true,
+      collapsed: true,
+      defaultTypography: defaults,
+    },
+    components: {
+      input: CardDetailTypographyInput,
+    },
+    fields: createHeroTypographySettingFields(defaults),
+  })
+}
+
+function createCardsSharedFields(isLinkedMode = false) {
+  const hidden = isLinkedMode
+    ? ({parent}) =>
+        Boolean(parent?.contentDocument?._ref) || !hasLegacyCardsContent(parent)
+    : false
+
   return [
-    createContentDocumentField(
-      'cardsBlockDocument',
-      'Блок карточек',
-      hasLegacyCardsContent
-    ),
     defineField({
       name: 'title',
       title: 'Заголовок',
       type: 'string',
-      hidden: ({parent}) =>
-        Boolean(parent?.contentDocument?._ref) || !hasLegacyCardsContent(parent),
+      hidden,
       validation: (Rule) =>
         Rule.custom((value, context) => {
           if (
-            context.parent?.contentDocument?._ref ||
-            !hasLegacyCardsContent(context.parent)
+            isLinkedMode &&
+            (context.parent?.contentDocument?._ref || !hasLegacyCardsContent(context.parent))
           ) {
             return true
           }
@@ -777,18 +808,67 @@ function createCardsFields() {
           return value ? true : 'Заполните заголовок'
         }),
     }),
+    createCardsTypographyField(
+      'titleTypography',
+      'Шрифт заголовка блока',
+      'Настройка применяется к заголовку всего блока карточек.',
+      cardsBlockTitleTypographyDefaults,
+      hidden
+    ),
+    defineField({
+      name: 'subtitle',
+      title: 'Подзаголовок',
+      type: 'text',
+      rows: 3,
+      hidden,
+      description: 'Короткий текст под заголовком блока карточек.',
+    }),
+    createCardsTypographyField(
+      'subtitleTypography',
+      'Шрифт подзаголовка',
+      'Настройка применяется к подзаголовку всего блока карточек.',
+      cardsBlockSubtitleTypographyDefaults,
+      hidden
+    ),
+    createCardsTypographyField(
+      'cardTitleTypography',
+      'Шрифт заголовков карточек',
+      'Настройка применяется ко всем заголовкам карточек в этом блоке.',
+      cardTitleTypographyDefaults,
+      hidden
+    ),
+    createCardsTypographyField(
+      'cardTextTypography',
+      'Шрифт текста карточек',
+      'Настройка применяется ко всем описаниям карточек в этом блоке.',
+      cardDescriptionTypographyDefaults,
+      hidden
+    ),
+    createCardsTypographyField(
+      'detailTypography',
+      'Шрифт строк карточек',
+      'Настройка применяется ко всем строкам карточек в этом блоке.',
+      cardDetailTypographyDefaults,
+      hidden
+    ),
+  ]
+}
+
+function createCardsFields() {
+  return [
+    createContentDocumentField(
+      'cardsBlockDocument',
+      'Блок карточек',
+      hasLegacyCardsContent
+    ),
+    ...createCardsSharedFields(true),
     createCardsItemsField(true),
   ]
 }
 
 function createCardsDocumentFields() {
   return [
-    defineField({
-      name: 'title',
-      title: 'Заголовок',
-      type: 'string',
-      validation: (Rule) => Rule.required(),
-    }),
+    ...createCardsSharedFields(false),
     createCardsItemsField(false),
   ]
 }
@@ -1496,43 +1576,12 @@ export const cardsBlockItem = defineType({
     }),
     defineField({
       name: 'text',
-      title: '\u041f\u043e\u0434\u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043e\u043a',
+      title: 'Описание',
       type: 'text',
       rows: 4,
-      description: '\u041a\u043e\u0440\u043e\u0442\u043a\u0438\u0439 \u043f\u043e\u0434\u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043e\u043a \u043f\u043e\u0434 \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043a\u043e\u043c. \u0421\u0442\u0440\u043e\u043a\u0438 \u0441 \u0446\u0435\u043d\u043e\u0439, \u0441\u0440\u043e\u043a\u043e\u043c \u0438 \u043f\u0440\u0438\u043c\u0435\u0440\u043e\u043c \u0434\u043e\u0431\u0430\u0432\u043b\u044f\u044e\u0442\u0441\u044f \u043d\u0438\u0436\u0435 \u043e\u0442\u0434\u0435\u043b\u044c\u043d\u044b\u043c \u0441\u043f\u0438\u0441\u043a\u043e\u043c.',
+      description:
+        'Короткое описание карточки. Строки с ценой, сроком и примером добавляются ниже отдельным списком.',
       validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'titleTypography',
-      title: '\u0428\u0440\u0438\u0444\u0442 \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043a\u0430',
-      type: 'object',
-      description: '\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430 \u043f\u0440\u0438\u043c\u0435\u043d\u044f\u0435\u0442\u0441\u044f \u043a \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043a\u0443 \u044d\u0442\u043e\u0439 \u043a\u0430\u0440\u0442\u043e\u0447\u043a\u0438.',
-      initialValue: cardTitleTypographyDefaults,
-      options: {
-        collapsible: true,
-        collapsed: true,
-        defaultTypography: cardTitleTypographyDefaults,
-      },
-      components: {
-        input: CardDetailTypographyInput,
-      },
-      fields: createHeroTypographySettingFields(cardTitleTypographyDefaults),
-    }),
-    defineField({
-      name: 'textTypography',
-      title: '\u0428\u0440\u0438\u0444\u0442 \u043f\u043e\u0434\u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043a\u0430',
-      type: 'object',
-      description: '\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430 \u043f\u0440\u0438\u043c\u0435\u043d\u044f\u0435\u0442\u0441\u044f \u043a \u0442\u0435\u043a\u0441\u0442\u0443 \u043f\u043e\u0434\u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043a\u0430 \u044d\u0442\u043e\u0439 \u043a\u0430\u0440\u0442\u043e\u0447\u043a\u0438.',
-      initialValue: cardDescriptionTypographyDefaults,
-      options: {
-        collapsible: true,
-        collapsed: true,
-        defaultTypography: cardDescriptionTypographyDefaults,
-      },
-      components: {
-        input: CardDetailTypographyInput,
-      },
-      fields: createHeroTypographySettingFields(cardDescriptionTypographyDefaults),
     }),
     defineField({
       name: 'details',
@@ -1540,22 +1589,6 @@ export const cardsBlockItem = defineType({
       type: 'array',
       description: 'Для каждой строки выберите тип: иконка подставится автоматически на сайте.',
       of: [createCardsBlockDetailArrayMember()],
-    }),
-    defineField({
-      name: 'detailTypography',
-      title: 'Шрифт строк',
-      type: 'object',
-      description: 'Настройка применяется к тексту всех строк этой карточки.',
-      initialValue: cardDetailTypographyDefaults,
-      options: {
-        collapsible: true,
-        collapsed: true,
-        defaultTypography: cardDetailTypographyDefaults,
-      },
-      components: {
-        input: CardDetailTypographyInput,
-      },
-      fields: createHeroTypographySettingFields(cardDetailTypographyDefaults),
     }),
     defineImageField(),
   ],

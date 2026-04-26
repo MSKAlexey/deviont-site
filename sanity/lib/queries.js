@@ -66,10 +66,12 @@ const pageBuilderSectionProjection = `
   ),
   "titleTypography": select(
     _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->titleTypography,
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->titleTypography,
     titleTypography
   ),
   "subtitle": select(
     _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitle,
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitle,
     subtitle
   ),
   "subtitleContent": select(
@@ -82,7 +84,20 @@ const pageBuilderSectionProjection = `
   ),
   "subtitleTypography": select(
     _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitleTypography,
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitleTypography,
     subtitleTypography
+  ),
+  "cardTitleTypography": select(
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->cardTitleTypography,
+    cardTitleTypography
+  ),
+  "cardTextTypography": select(
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->cardTextTypography,
+    cardTextTypography
+  ),
+  "detailTypography": select(
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->detailTypography,
+    detailTypography
   ),
   "preButtonText": select(
     _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->preButtonText,
@@ -201,6 +216,12 @@ const pageBuilderSectionProjection = `
       _id,
       "_type": "cardsBlock",
       title,
+      subtitle,
+      titleTypography,
+      subtitleTypography,
+      cardTitleTypography,
+      cardTextTypography,
+      detailTypography,
       ${cardsBlockItemsProjection}
     },
     _type == "reference" && @->._type == "certificatesBlockDocument" => @->{

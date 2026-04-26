@@ -42,7 +42,7 @@ const detailFontFamilyMap = {
   'courier-new': "'Courier New', monospace",
 }
 
-function renderCardDescription(text, typography) {
+function renderCardDescription(text, style) {
   if (typeof text !== 'string' || text.length === 0) {
     return null
   }
@@ -57,10 +57,8 @@ function renderCardDescription(text, typography) {
     return null
   }
 
-  const textStyle = resolveHeroTypographyStyle(typography)
-
   return (
-    <p className="builderCardText" style={textStyle}>
+    <p className="builderCardText" style={style}>
       {compactText}
     </p>
   )
@@ -164,40 +162,56 @@ export default function CardsBlockSection({block, sectionId}) {
   }
 
   const hasCardMedia = block.items.some((item) => item?.image?.asset)
+  const sectionTitleStyle = resolveHeroTypographyStyle(block?.titleTypography)
+  const sectionSubtitleStyle = resolveHeroTypographyStyle(block?.subtitleTypography)
 
   return (
     <section className="section" id={sectionId}>
       <div className="container">
-        <SectionHeading title={block.title} />
+        <SectionHeading
+          title={block.title}
+          description={block.subtitle}
+          titleStyle={sectionTitleStyle}
+          descriptionStyle={sectionSubtitleStyle}
+        />
 
         <div className="sectionCardsGrid sectionCardsGridThree">
-          {block.items.map((item) => (
-            <article className="infoCard builderCard" key={item._key || item.title}>
-              {hasCardMedia ? (
-                item.image?.asset ? (
-                  <SectionCardImage
-                    image={item.image}
-                    alt={item.title}
-                    width={720}
-                    height={420}
-                    fit="crop"
-                    wrapperClassName="builderCardMedia"
-                    imageClassName="builderCardImage"
-                  />
-                ) : (
-                  <div aria-hidden="true" className="builderCardMedia builderCardMediaPlaceholder" />
-                )
-              ) : null}
+          {block.items.map((item) => {
+            const cardTitleStyle = resolveHeroTypographyStyle(
+              block?.cardTitleTypography || item?.titleTypography
+            )
+            const cardTextStyle = resolveHeroTypographyStyle(
+              block?.cardTextTypography || item?.textTypography
+            )
 
-              <div className="builderCardBody">
-                <h3 className="builderCardTitle" style={resolveHeroTypographyStyle(item.titleTypography)}>
-                  {item.title}
-                </h3>
-                {renderCardDescription(item.text, item.textTypography)}
-                {renderCardDetails(item.details, item.detailTypography)}
-              </div>
-            </article>
-          ))}
+            return (
+              <article className="infoCard builderCard" key={item._key || item.title}>
+                {hasCardMedia ? (
+                  item.image?.asset ? (
+                    <SectionCardImage
+                      image={item.image}
+                      alt={item.title}
+                      width={720}
+                      height={420}
+                      fit="crop"
+                      wrapperClassName="builderCardMedia"
+                      imageClassName="builderCardImage"
+                    />
+                  ) : (
+                    <div aria-hidden="true" className="builderCardMedia builderCardMediaPlaceholder" />
+                  )
+                ) : null}
+
+                <div className="builderCardBody">
+                  <h3 className="builderCardTitle" style={cardTitleStyle}>
+                    {item.title}
+                  </h3>
+                  {renderCardDescription(item.text, cardTextStyle)}
+                  {renderCardDetails(item.details, block?.detailTypography || item?.detailTypography)}
+                </div>
+              </article>
+            )
+          })}
         </div>
       </div>
     </section>
