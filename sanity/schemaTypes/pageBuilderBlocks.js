@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react'
 import {defineArrayMember, defineField, defineType, useClient} from 'sanity'
 import CardDetailTypographyInput from '../components/CardDetailTypographyInput.js'
+import CardsBlockInput from '../components/CardsBlockInput.js'
 import HeroFieldWithoutTitle from '../components/HeroFieldWithoutTitle.js'
 import HeroTextConfigInput from '../components/HeroTextConfigInput.js'
 import {defineImageField} from './lib/defineImageField.js'
@@ -1641,6 +1642,7 @@ export const cardsBlock = defineType({
   preview: cardsBlockEditorPreview,
   components: {
     preview: CardsBlockPreview,
+    input: CardsBlockInput,
   },
 })
 
@@ -1703,6 +1705,7 @@ export const cardsBlockDocument = defineType({
   preview: cardsPreview,
   components: {
     preview: CardsBlockPreview,
+    input: CardsBlockInput,
   },
 })
 
