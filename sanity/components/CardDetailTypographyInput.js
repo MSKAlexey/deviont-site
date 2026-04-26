@@ -2,7 +2,7 @@ import {useEffect} from 'react'
 import {Grid} from '@sanity/ui'
 import {ObjectInputMember, set} from 'sanity'
 
-const defaultTypography = {
+const fallbackTypography = {
   fontFamily: 'segoe-ui',
   fontWeight: '600',
   fontSize: 15,
@@ -33,6 +33,7 @@ function renderMember(props, member) {
 
 export default function CardDetailTypographyInput(props) {
   const {onChange, readOnly} = props
+  const defaultTypography = props.schemaType?.options?.defaultTypography || fallbackTypography
   const value = props.value || {}
   const {fontFamily, fontWeight, fontSize} = value
   const fontFamilyMember = getFieldMember(props.members, 'fontFamily')

@@ -1,5 +1,6 @@
 import SectionCardImage from './SectionCardImage'
 import SectionHeading from './SectionHeading'
+import {resolveHeroTypographyStyle} from './heroTypography'
 
 const detailIconConfig = {
   price: {
@@ -41,7 +42,7 @@ const detailFontFamilyMap = {
   'courier-new': "'Courier New', monospace",
 }
 
-function renderCardDescription(text) {
+function renderCardDescription(text, typography) {
   if (typeof text !== 'string' || text.length === 0) {
     return null
   }
@@ -56,7 +57,13 @@ function renderCardDescription(text) {
     return null
   }
 
-  return <p className="builderCardText">{compactText}</p>
+  const textStyle = resolveHeroTypographyStyle(typography)
+
+  return (
+    <p className="builderCardText" style={textStyle}>
+      {compactText}
+    </p>
+  )
 }
 
 function resolveDetailIconConfig(type) {
@@ -183,8 +190,10 @@ export default function CardsBlockSection({block, sectionId}) {
               ) : null}
 
               <div className="builderCardBody">
-                <h3 className="builderCardTitle">{item.title}</h3>
-                {renderCardDescription(item.text)}
+                <h3 className="builderCardTitle" style={resolveHeroTypographyStyle(item.titleTypography)}>
+                  {item.title}
+                </h3>
+                {renderCardDescription(item.text, item.textTypography)}
                 {renderCardDetails(item.details, item.detailTypography)}
               </div>
             </article>

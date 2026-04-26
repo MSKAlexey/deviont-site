@@ -215,6 +215,18 @@ const cardDetailTypographyDefaults = {
   fontSize: 15,
 }
 
+const cardTitleTypographyDefaults = {
+  fontFamily: 'segoe-ui',
+  fontWeight: '700',
+  fontSize: 19,
+}
+
+const cardDescriptionTypographyDefaults = {
+  fontFamily: 'segoe-ui',
+  fontWeight: '400',
+  fontSize: 15,
+}
+
 function createHeroPortableTextField(name, title, hidden, rows = 3, description, fieldComponent) {
   return defineField({
     name,
@@ -1491,6 +1503,38 @@ export const cardsBlockItem = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'titleTypography',
+      title: '\u0428\u0440\u0438\u0444\u0442 \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043a\u0430',
+      type: 'object',
+      description: '\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430 \u043f\u0440\u0438\u043c\u0435\u043d\u044f\u0435\u0442\u0441\u044f \u043a \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043a\u0443 \u044d\u0442\u043e\u0439 \u043a\u0430\u0440\u0442\u043e\u0447\u043a\u0438.',
+      initialValue: cardTitleTypographyDefaults,
+      options: {
+        collapsible: true,
+        collapsed: true,
+        defaultTypography: cardTitleTypographyDefaults,
+      },
+      components: {
+        input: CardDetailTypographyInput,
+      },
+      fields: createHeroTypographySettingFields(cardTitleTypographyDefaults),
+    }),
+    defineField({
+      name: 'textTypography',
+      title: '\u0428\u0440\u0438\u0444\u0442 \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u044f',
+      type: 'object',
+      description: '\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430 \u043f\u0440\u0438\u043c\u0435\u043d\u044f\u0435\u0442\u0441\u044f \u043a \u0442\u0435\u043a\u0441\u0442\u0443 \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u044f \u044d\u0442\u043e\u0439 \u043a\u0430\u0440\u0442\u043e\u0447\u043a\u0438.',
+      initialValue: cardDescriptionTypographyDefaults,
+      options: {
+        collapsible: true,
+        collapsed: true,
+        defaultTypography: cardDescriptionTypographyDefaults,
+      },
+      components: {
+        input: CardDetailTypographyInput,
+      },
+      fields: createHeroTypographySettingFields(cardDescriptionTypographyDefaults),
+    }),
+    defineField({
       name: 'details',
       title: 'Строки карточки',
       type: 'array',
@@ -1506,6 +1550,7 @@ export const cardsBlockItem = defineType({
       options: {
         collapsible: true,
         collapsed: true,
+        defaultTypography: cardDetailTypographyDefaults,
       },
       components: {
         input: CardDetailTypographyInput,
