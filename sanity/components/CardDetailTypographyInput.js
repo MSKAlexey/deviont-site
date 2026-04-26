@@ -8,7 +8,7 @@ const fallbackTypography = {
   fontSize: 15,
 }
 
-function getFieldMember(members, name) {
+function getFieldMember(members = [], name) {
   return members.find((member) => member.kind === 'field' && member.name === name)
 }
 
