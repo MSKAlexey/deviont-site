@@ -13,10 +13,12 @@ const CARDS_BLOCK_PREVIEW_QUERY = `
   coalesce(
     *[_id == $draftId][0]{
       title,
+      titleContent,
       "itemsCount": count(items)
     },
     *[_id == $publishedId][0]{
       title,
+      titleContent,
       "itemsCount": count(items)
     }
   )
@@ -47,9 +49,40 @@ function getCardsCount(value, linkedPreview) {
   return 0
 }
 
+function getPortableTextPlainText(value) {
+  const content = Array.isArray(value?.content) ? value.content : []
+
+  return content
+    .map((block) => {
+      if (block?._type !== 'block' || !Array.isArray(block.children)) {
+        return ''
+      }
+
+      return block.children
+        .map((child) => (child?._type === 'span' && typeof child.text === 'string' ? child.text : ''))
+        .join('')
+        .trim()
+    })
+    .filter(Boolean)
+    .join(' ')
+    .trim()
+}
+
 function getTitle(props, linkedPreview) {
   if (typeof props.value?.adminTitle === 'string' && props.value.adminTitle.trim()) {
     return props.value.adminTitle.trim()
+  }
+
+  const localRichTitle = getPortableTextPlainText(props.value?.titleContent)
+
+  if (localRichTitle) {
+    return localRichTitle
+  }
+
+  const linkedRichTitle = getPortableTextPlainText(linkedPreview?.titleContent)
+
+  if (linkedRichTitle) {
+    return linkedRichTitle
   }
 
   if (linkedPreview?.title) {

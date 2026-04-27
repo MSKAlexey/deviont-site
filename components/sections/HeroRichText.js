@@ -1,4 +1,5 @@
 import {Fragment} from 'react'
+import {resolveHeroTypographyStyle} from './heroTypography'
 
 const breakTagPattern = /<br\s*\/?>/gi
 const lineBreakPattern = /\r\n|\r|\n/
@@ -63,7 +64,7 @@ export function getHeroRichTextPlainText(value) {
     .trim()
 }
 
-function applyHeroMarks(content, marks, keyPrefix) {
+function applyHeroMarks(content, marks, markDefs, keyPrefix) {
   return marks.reduce((result, mark, index) => {
     if (mark === 'strong') {
       return <strong key={`${keyPrefix}-strong-${index}`}>{result}</strong>
@@ -71,6 +72,20 @@ function applyHeroMarks(content, marks, keyPrefix) {
 
     if (mark === 'underline') {
       return <u key={`${keyPrefix}-underline-${index}`}>{result}</u>
+    }
+
+    const markDef = markDefs.find((definition) => definition?._key === mark)
+
+    if (markDef?._type === 'inlineTypography') {
+      const style = resolveHeroTypographyStyle(markDef)
+
+      return style ? (
+        <span key={`${keyPrefix}-inline-typography-${index}`} style={style}>
+          {result}
+        </span>
+      ) : (
+        result
+      )
     }
 
     return result
@@ -97,10 +112,11 @@ function renderHeroRichTextValue(value) {
           }
 
           const marks = Array.isArray(child.marks) ? child.marks : []
+          const markDefs = Array.isArray(block.markDefs) ? block.markDefs : []
 
           return (
             <Fragment key={`hero-rich-child-${blockIndex}-${childIndex}`}>
-              {applyHeroMarks(text, marks, `hero-rich-${blockIndex}-${childIndex}`)}
+              {applyHeroMarks(text, marks, markDefs, `hero-rich-${blockIndex}-${childIndex}`)}
             </Fragment>
           )
         })

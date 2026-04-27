@@ -58,6 +58,7 @@ const pageBuilderSectionProjection = `
   ),
   "titleContent": select(
     _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->titleContent,
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->titleContent,
     titleContent
   ),
   "titleFormatted": select(
@@ -71,7 +72,6 @@ const pageBuilderSectionProjection = `
   ),
   "subtitle": select(
     _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitle,
-    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitle,
     subtitle
   ),
   "subtitleContent": select(
@@ -84,7 +84,6 @@ const pageBuilderSectionProjection = `
   ),
   "subtitleTypography": select(
     _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitleTypography,
-    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->subtitleTypography,
     subtitleTypography
   ),
   "cardTitleTypography": select(
@@ -98,6 +97,10 @@ const pageBuilderSectionProjection = `
   "detailTypography": select(
     _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->detailTypography,
     detailTypography
+  ),
+  "cardTypography": select(
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->cardTypography,
+    cardTypography
   ),
   "preButtonText": select(
     _type in ["heroBlock", "heroBlockItem"] && defined(contentDocument->_id) => contentDocument->preButtonText,
@@ -152,6 +155,10 @@ const pageBuilderSectionProjection = `
     _type in ["ctaBlock", "ctaBlockItem"] && defined(contentDocument->_id) => contentDocument->text,
     _type in ["contactBlock", "contactBlockItem"] && defined(contentDocument->_id) => contentDocument->text,
     text
+  ),
+  "textContent": select(
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->textContent,
+    textContent
   ),
   "buttonText": select(
     _type in ["ctaBlock", "ctaBlockItem"] && defined(contentDocument->_id) => contentDocument->buttonText,
@@ -216,9 +223,9 @@ const pageBuilderSectionProjection = `
       _id,
       "_type": "cardsBlock",
       title,
-      subtitle,
+      titleContent,
       titleTypography,
-      subtitleTypography,
+      cardTypography,
       cardTitleTypography,
       cardTextTypography,
       detailTypography,

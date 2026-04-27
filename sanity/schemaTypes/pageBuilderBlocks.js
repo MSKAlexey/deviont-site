@@ -1,7 +1,12 @@
 import {useEffect, useState} from 'react'
 import {defineArrayMember, defineField, defineType, useClient} from 'sanity'
 import CardDetailTypographyInput from '../components/CardDetailTypographyInput.js'
+import CompactTypographyInput from '../components/CompactTypographyInput.js'
 import CardsBlockInput from '../components/CardsBlockInput.js'
+import CardsBlockItemInput from '../components/CardsBlockItemInput.js'
+import CardsPortableTextInput from '../components/CardsPortableTextInput.js'
+import CardsTextConfigInput from '../components/CardsTextConfigInput.js'
+import FieldInputOnly from '../components/FieldInputOnly.js'
 import HeroFieldWithoutTitle from '../components/HeroFieldWithoutTitle.js'
 import HeroTextConfigInput from '../components/HeroTextConfigInput.js'
 import {defineImageField} from './lib/defineImageField.js'
@@ -210,10 +215,10 @@ const heroTypographyFontWeightOptions = [
   {title: '900 — максимально жирный', value: '900'},
 ]
 
-const cardDetailTypographyDefaults = {
+const cardsBlockTitleTypographyDefaults = {
   fontFamily: 'segoe-ui',
-  fontWeight: '600',
-  fontSize: 15,
+  fontWeight: '700',
+  fontSize: 40,
 }
 
 const cardTitleTypographyDefaults = {
@@ -222,22 +227,16 @@ const cardTitleTypographyDefaults = {
   fontSize: 19,
 }
 
+const cardsBlockTypographyDefaults = {
+  fontFamily: 'segoe-ui',
+  fontWeight: '600',
+  fontSize: 15,
+}
+
 const cardDescriptionTypographyDefaults = {
   fontFamily: 'segoe-ui',
   fontWeight: '400',
   fontSize: 15,
-}
-
-const cardsBlockTitleTypographyDefaults = {
-  fontFamily: 'segoe-ui',
-  fontWeight: '700',
-  fontSize: 40,
-}
-
-const cardsBlockSubtitleTypographyDefaults = {
-  fontFamily: 'segoe-ui',
-  fontWeight: '400',
-  fontSize: 17,
 }
 
 function createHeroPortableTextField(name, title, hidden, rows = 3, description, fieldComponent) {
@@ -362,6 +361,10 @@ function validateLinkedHeroTextConfig(
 
 function resolveHeroPreviewText(contentValue, text, formattedText) {
   return extractPortableTextPlainText(contentValue?.content) || text || extractPortableTextPlainText(formattedText)
+}
+
+function resolveCardsPreviewText(contentValue, legacyText) {
+  return extractPortableTextPlainText(contentValue?.content) || legacyText || ''
 }
 
 function createHeroTextConfigField({
@@ -774,14 +777,139 @@ function createCardsTypographyField(name, title, description, defaults, hidden =
     hidden,
     initialValue: defaults,
     options: {
-      collapsible: true,
-      collapsed: true,
       defaultTypography: defaults,
     },
     components: {
+      field: FieldInputOnly,
       input: CardDetailTypographyInput,
     },
     fields: createHeroTypographySettingFields(defaults),
+  })
+}
+
+function createCardsInlineTypographyFields() {
+  return [
+    defineField({
+      name: 'fontFamily',
+      title: 'Шрифт',
+      type: 'string',
+      options: {
+        list: heroTypographyFontFamilyOptions.filter((option) => option.value !== 'default'),
+        layout: 'dropdown',
+      },
+    }),
+    defineField({
+      name: 'fontWeight',
+      title: 'Толщина',
+      type: 'string',
+      options: {
+        list: heroTypographyFontWeightOptions.filter((option) => option.value !== 'default'),
+        layout: 'dropdown',
+      },
+    }),
+    defineField({
+      name: 'fontSize',
+      title: 'Размер шрифта, px',
+      type: 'number',
+      validation: (Rule) => Rule.min(1).max(160),
+    }),
+  ]
+}
+
+function createCardsPortableTextField(name, rows = 3) {
+  return defineField({
+    name,
+    title: '',
+    type: 'array',
+    components: {
+      field: FieldInputOnly,
+      input: CardsPortableTextInput,
+    },
+    options: {
+      rows,
+    },
+    of: [
+      defineArrayMember({
+        type: 'block',
+        options: rows === 1 ? {oneLine: true} : undefined,
+        styles: [{title: 'Обычный', value: 'normal'}],
+        lists: [],
+        marks: {
+          decorators: [
+            {title: 'Жирный', value: 'strong'},
+            {title: 'Подчёркнутый', value: 'underline'},
+          ],
+          annotations: [
+            {
+              name: 'inlineTypography',
+              title: 'Стиль фрагмента',
+              type: 'object',
+              fields: createCardsInlineTypographyFields(),
+            },
+          ],
+        },
+      }),
+    ],
+  })
+}
+
+function validateCardsTextConfig(value, legacyValue, message) {
+  return hasHeroTextConfigContent(value) ||
+    (typeof legacyValue === 'string' && legacyValue.trim().length > 0)
+    ? true
+    : message
+}
+
+function createCardsTextConfigField({
+  name,
+  title,
+  rows = 3,
+  hidden = false,
+  defaults,
+  legacyFieldName,
+  validationMessage,
+}) {
+  return defineField({
+    name,
+    title,
+    type: 'object',
+    hidden,
+    initialValue: defaults,
+    options: {
+      rows,
+      legacyFieldName,
+    },
+    components: {
+      input: CardsTextConfigInput,
+    },
+    fields: [
+      ...createHeroTypographySettingFields(defaults),
+      createCardsPortableTextField('content', rows),
+    ],
+    validation: (Rule) =>
+      Rule.custom((value, context) =>
+        validateCardsTextConfig(value, context.parent?.[legacyFieldName], validationMessage)
+      ),
+  })
+}
+
+function createCardsCompactTypographyField(name, title, description, hidden = false, fieldset) {
+  return defineField({
+    name,
+    title,
+    type: 'object',
+    description,
+    hidden,
+    fieldset,
+    initialValue: cardsBlockTypographyDefaults,
+    options: {
+      defaultTypography: cardsBlockTypographyDefaults,
+    },
+    components: {
+      field: FieldInputOnly,
+      input: CompactTypographyInput,
+    },
+    fields: createHeroTypographySettingFields(cardsBlockTypographyDefaults),
   })
 }
 
@@ -792,65 +920,33 @@ function createCardsSharedFields(isLinkedMode = false) {
     : false
 
   return [
+    createCardsTextConfigField({
+      name: 'titleContent',
+      title: 'Заголовок',
+      rows: 1,
+      hidden,
+      defaults: cardsBlockTitleTypographyDefaults,
+      legacyFieldName: 'title',
+      validationMessage: 'Заполните заголовок',
+    }),
     defineField({
       name: 'title',
-      title: 'Заголовок',
+      title: 'Заголовок (legacy)',
       type: 'string',
-      hidden,
-      validation: (Rule) =>
-        Rule.custom((value, context) => {
-          if (
-            isLinkedMode &&
-            (context.parent?.contentDocument?._ref || !hasLegacyCardsContent(context.parent))
-          ) {
-            return true
-          }
-
-          return value ? true : 'Заполните заголовок'
-        }),
+      hidden: true,
     }),
     createCardsTypographyField(
       'titleTypography',
-      'Шрифт заголовка блока',
-      'Настройка применяется к заголовку всего блока карточек.',
+      'Шрифт заголовка блока (legacy)',
+      'Legacy fallback typography for block title.',
       cardsBlockTitleTypographyDefaults,
-      hidden
+      true
     ),
-    defineField({
-      name: 'subtitle',
-      title: 'Подзаголовок',
-      type: 'text',
-      rows: 3,
-      hidden,
-      description: 'Короткий текст под заголовком блока карточек.',
-    }),
-    createCardsTypographyField(
-      'subtitleTypography',
-      'Шрифт подзаголовка',
-      'Настройка применяется к подзаголовку всего блока карточек.',
-      cardsBlockSubtitleTypographyDefaults,
-      hidden
-    ),
-    createCardsTypographyField(
-      'cardTitleTypography',
-      'Шрифт заголовков карточек',
-      'Настройка применяется ко всем заголовкам карточек в этом блоке.',
-      cardTitleTypographyDefaults,
-      hidden
-    ),
-    createCardsTypographyField(
-      'cardTextTypography',
-      'Шрифт текста карточек',
-      'Настройка применяется ко всем описаниям карточек в этом блоке.',
-      cardDescriptionTypographyDefaults,
-      hidden
-    ),
-    createCardsTypographyField(
-      'detailTypography',
-      'Шрифт строк карточек',
-      'Настройка применяется ко всем строкам карточек в этом блоке.',
-      cardDetailTypographyDefaults,
-      hidden
+    createCardsCompactTypographyField(
+      'cardTypography',
+      'Шрифт карточек (legacy)',
+      'Legacy fallback typography for card content.',
+      true
     ),
   ]
 }
@@ -1349,14 +1445,16 @@ const textPreview = {
 const cardsPreview = {
   select: {
     title: 'title',
+    titleContent: 'titleContent',
     items: 'items',
     media: 'items.0.image',
   },
-  prepare({title, items, media}) {
+  prepare({title, titleContent, items, media}) {
     const resolvedItemsCount = getItemsCount(items)
+    const resolvedTitle = resolveCardsPreviewText(titleContent, title)
 
     return {
-      title: title || 'Блок карточек',
+      title: resolvedTitle || 'Блок карточек',
       subtitle: `${resolvedItemsCount} карточек`,
       media,
     }
@@ -1484,14 +1582,16 @@ const cardsBlockEditorPreview = {
   select: {
     adminTitle: 'adminTitle',
     title: 'title',
+    titleContent: 'titleContent',
     itemsCount: 'items.length',
     media: 'items.0.image',
   },
-  prepare({adminTitle, title, itemsCount, media}) {
+  prepare({adminTitle, title, titleContent, itemsCount, media}) {
     const resolvedItemsCount = getItemsCount(itemsCount)
+    const resolvedTitle = resolveCardsPreviewText(titleContent, title)
 
     return {
-      title: resolvePreviewTitle(adminTitle, title, 'Блок карточек'),
+      title: resolvePreviewTitle(adminTitle, resolvedTitle, 'Блок карточек'),
       subtitle: `${resolvedItemsCount} карточек`,
       media,
     }
@@ -1569,21 +1669,41 @@ export const cardsBlockItem = defineType({
   title: 'Карточка',
   type: 'object',
   fields: [
+    createCardsTextConfigField({
+      name: 'titleContent',
+      title: 'Заголовок',
+      rows: 1,
+      defaults: cardTitleTypographyDefaults,
+      legacyFieldName: 'title',
+      validationMessage: 'Заполните заголовок карточки',
+    }),
     defineField({
       name: 'title',
-      title: 'Заголовок',
+      title: 'Заголовок (legacy)',
       type: 'string',
-      validation: (Rule) => Rule.required(),
+      hidden: true,
+    }),
+    createCardsTextConfigField({
+      name: 'textContent',
+      title: 'Описание',
+      rows: 4,
+      defaults: cardDescriptionTypographyDefaults,
+      legacyFieldName: 'text',
+      validationMessage: 'Заполните описание карточки',
     }),
     defineField({
       name: 'text',
-      title: 'Описание',
+      title: 'Описание (legacy)',
       type: 'text',
       rows: 4,
-      description:
-        'Короткое описание карточки. Строки с ценой, сроком и примером добавляются ниже отдельным списком.',
-      validation: (Rule) => Rule.required(),
+      hidden: true,
     }),
+    createCardsCompactTypographyField(
+      'cardTypography',
+      'Шрифт карточки (legacy)',
+      'Legacy fallback typography for card content.',
+      true
+    ),
     defineField({
       name: 'details',
       title: 'Строки карточки',
@@ -1596,25 +1716,32 @@ export const cardsBlockItem = defineType({
   preview: {
     select: {
       title: 'title',
+      titleContent: 'titleContent',
       subtitle: 'text',
+      textContent: 'textContent',
       details: 'details',
       media: 'image',
     },
-    prepare({title, subtitle, details, media}) {
+    prepare({title, titleContent, subtitle, textContent, details, media}) {
       const detailsCount = Array.isArray(details)
         ? details.filter((detail) => typeof detail?.text === 'string' && detail.text.trim()).length
         : 0
+      const resolvedTitle = resolveCardsPreviewText(titleContent, title)
+      const resolvedSubtitle = resolveCardsPreviewText(textContent, subtitle)
       const subtitleParts = [
-        truncateText(subtitle),
+        truncateText(resolvedSubtitle),
         detailsCount > 0 ? `${detailsCount} строк` : null,
       ].filter(Boolean)
 
       return {
-        title: title || 'Карточка без названия',
+        title: resolvedTitle || 'Карточка без названия',
         subtitle: subtitleParts.join(' / '),
         media,
       }
     },
+  },
+  components: {
+    input: CardsBlockItemInput,
   },
 })
 

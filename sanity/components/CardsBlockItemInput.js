@@ -24,33 +24,25 @@ function renderMember(props, member) {
   )
 }
 
-export default function CardsBlockInput(props) {
+export default function CardsBlockItemInput(props) {
   const members = props.members || []
-  const memberNames = new Set([
-    'adminTitle',
-    'contentDocument',
-    'titleContent',
-    'items',
-    'isActive',
-  ])
+  const memberNames = new Set(['titleContent', 'textContent', 'details', 'image'])
 
-  const adminTitleMember = getFieldMember(members, 'adminTitle')
-  const contentDocumentMember = getFieldMember(members, 'contentDocument')
   const titleContentMember = getFieldMember(members, 'titleContent')
-  const itemsMember = getFieldMember(members, 'items')
-  const isActiveMember = getFieldMember(members, 'isActive')
+  const textContentMember = getFieldMember(members, 'textContent')
+  const detailsMember = getFieldMember(members, 'details')
+  const imageMember = getFieldMember(members, 'image')
 
   const remainingMembers = members.filter(
     (member) => member.kind !== 'field' || !memberNames.has(member.name)
   )
 
   return (
-    <Stack space={5}>
-      {renderMember(props, adminTitleMember)}
-      {renderMember(props, contentDocumentMember)}
+    <Stack space={4}>
       {renderMember(props, titleContentMember)}
-      {renderMember(props, itemsMember)}
-      {renderMember(props, isActiveMember)}
+      {renderMember(props, textContentMember)}
+      {renderMember(props, detailsMember)}
+      {renderMember(props, imageMember)}
 
       {remainingMembers.map((member, index) => (
         <div key={member.field?.name || member.name || member.index || index}>

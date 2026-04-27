@@ -1,5 +1,6 @@
 import SectionCardImage from './SectionCardImage'
 import SectionHeading from './SectionHeading'
+import HeroRichText, {hasHeroRichTextContent, renderHeroMultilineText} from './HeroRichText'
 import {resolveHeroTypographyStyle} from './heroTypography'
 
 const detailIconConfig = {
@@ -42,7 +43,11 @@ const detailFontFamilyMap = {
   'courier-new': "'Courier New', monospace",
 }
 
-function renderCardDescription(text, style) {
+function renderCardDescription(text, richText, style) {
+  if (hasHeroRichTextContent(richText)) {
+    return <HeroRichText value={richText} as="p" className="builderCardText" style={style} />
+  }
+
   if (typeof text !== 'string' || text.length === 0) {
     return null
   }
@@ -157,31 +162,44 @@ function renderCardDetails(details, typography) {
 }
 
 export default function CardsBlockSection({block, sectionId}) {
-  if (!block?.title || !Array.isArray(block.items) || block.items.length === 0) {
+  const sectionTitleContent = block?.titleContent?.content
+  const hasSectionTitle = hasHeroRichTextContent(sectionTitleContent) || Boolean(block?.title)
+
+  if (!hasSectionTitle || !Array.isArray(block.items) || block.items.length === 0) {
     return null
   }
 
   const hasCardMedia = block.items.some((item) => item?.image?.asset)
-  const sectionTitleStyle = resolveHeroTypographyStyle(block?.titleTypography)
-  const sectionSubtitleStyle = resolveHeroTypographyStyle(block?.subtitleTypography)
+  const sectionTitleStyle = resolveHeroTypographyStyle(block?.titleContent || block?.titleTypography)
+  const sectionTitle = hasHeroRichTextContent(sectionTitleContent) ? (
+    <HeroRichText value={sectionTitleContent} as="span" />
+  ) : (
+    renderHeroMultilineText(block.title, 'cards-block-title')
+  )
 
   return (
     <section className="section" id={sectionId}>
       <div className="container">
-        <SectionHeading
-          title={block.title}
-          description={block.subtitle}
-          titleStyle={sectionTitleStyle}
-          descriptionStyle={sectionSubtitleStyle}
-        />
+        <SectionHeading title={sectionTitle} titleStyle={sectionTitleStyle} />
 
         <div className="sectionCardsGrid sectionCardsGridThree">
           {block.items.map((item) => {
+            const sharedCardTypography = item?.cardTypography || block?.cardTypography
+            const cardTitleContent = item?.titleContent?.content
+            const cardTextContent = item?.textContent?.content
             const cardTitleStyle = resolveHeroTypographyStyle(
-              block?.cardTitleTypography || item?.titleTypography
+              item?.titleContent ||
+                item?.titleTypography ||
+                sharedCardTypography ||
+                block?.cardTitleTypography ||
+                block?.cardTypography
             )
             const cardTextStyle = resolveHeroTypographyStyle(
-              block?.cardTextTypography || item?.textTypography
+              item?.textContent ||
+                item?.textTypography ||
+                sharedCardTypography ||
+                block?.cardTextTypography ||
+                block?.cardTypography
             )
 
             return (
@@ -204,10 +222,17 @@ export default function CardsBlockSection({block, sectionId}) {
 
                 <div className="builderCardBody">
                   <h3 className="builderCardTitle" style={cardTitleStyle}>
-                    {item.title}
+                    {hasHeroRichTextContent(cardTitleContent) ? (
+                      <HeroRichText value={cardTitleContent} as="span" />
+                    ) : (
+                      renderHeroMultilineText(item.title, `cards-item-title-${item._key || item.title}`)
+                    )}
                   </h3>
-                  {renderCardDescription(item.text, cardTextStyle)}
-                  {renderCardDetails(item.details, block?.detailTypography || item?.detailTypography)}
+                  {renderCardDescription(item.text, cardTextContent, cardTextStyle)}
+                  {renderCardDetails(
+                    item.details,
+                    sharedCardTypography || block?.detailTypography || item?.detailTypography
+                  )}
                 </div>
               </article>
             )
