@@ -262,6 +262,7 @@ function createHeroPortableTextField(name, title, hidden, rows = 3, description,
         marks: {
           decorators: [
             {title: 'Жирный', value: 'strong'},
+            {title: '\u041a\u0443\u0440\u0441\u0438\u0432', value: 'em'},
             {title: 'Подчёркнутый', value: 'underline'},
           ],
           annotations: [],
@@ -787,36 +788,24 @@ function createCardsTypographyField(name, title, description, defaults, hidden =
   })
 }
 
-function createCardsInlineTypographyFields() {
+function createCardsLinkFields() {
   return [
     defineField({
-      name: 'fontFamily',
-      title: 'Шрифт',
-      type: 'string',
-      options: {
-        list: heroTypographyFontFamilyOptions.filter((option) => option.value !== 'default'),
-        layout: 'dropdown',
-      },
-    }),
-    defineField({
-      name: 'fontWeight',
-      title: 'Толщина',
-      type: 'string',
-      options: {
-        list: heroTypographyFontWeightOptions.filter((option) => option.value !== 'default'),
-        layout: 'dropdown',
-      },
-    }),
-    defineField({
-      name: 'fontSize',
-      title: 'Размер шрифта, px',
-      type: 'number',
-      validation: (Rule) => Rule.min(1).max(160),
+      name: 'href',
+      title: 'URL',
+      type: 'url',
+      validation: (Rule) =>
+        Rule.uri({
+          allowRelative: true,
+          scheme: ['http', 'https', 'mailto', 'tel'],
+        }),
     }),
   ]
 }
 
 function createCardsPortableTextField(name, rows = 3) {
+  const isSingleLine = rows === 1
+
   return defineField({
     name,
     title: '',
@@ -831,20 +820,36 @@ function createCardsPortableTextField(name, rows = 3) {
     of: [
       defineArrayMember({
         type: 'block',
-        options: rows === 1 ? {oneLine: true} : undefined,
-        styles: [{title: 'Обычный', value: 'normal'}],
-        lists: [],
+        options: isSingleLine ? {oneLine: true} : undefined,
+        styles: isSingleLine
+          ? [
+              {title: 'Обычный', value: 'normal'},
+              {title: 'Акцент', value: 'h3'},
+            ]
+          : [
+              {title: 'Обычный', value: 'normal'},
+              {title: 'Заголовок 2', value: 'h2'},
+              {title: 'Заголовок 3', value: 'h3'},
+              {title: 'Цитата', value: 'blockquote'},
+            ],
+        lists: isSingleLine
+          ? []
+          : [
+              {title: 'Маркированный список', value: 'bullet'},
+              {title: 'Нумерованный список', value: 'number'},
+            ],
         marks: {
           decorators: [
             {title: 'Жирный', value: 'strong'},
+            {title: 'Курсив', value: 'em'},
             {title: 'Подчёркнутый', value: 'underline'},
           ],
           annotations: [
             {
-              name: 'inlineTypography',
-              title: 'Стиль фрагмента',
+              name: 'link',
+              title: 'Ссылка',
               type: 'object',
-              fields: createCardsInlineTypographyFields(),
+              fields: createCardsLinkFields(),
             },
           ],
         },
@@ -874,18 +879,15 @@ function createCardsTextConfigField({
     title,
     type: 'object',
     hidden,
-    initialValue: defaults,
     options: {
       rows,
       legacyFieldName,
+      defaultTypography: defaults,
     },
     components: {
       input: CardsTextConfigInput,
     },
-    fields: [
-      ...createHeroTypographySettingFields(defaults),
-      createCardsPortableTextField('content', rows),
-    ],
+    fields: [createCardsPortableTextField('content', rows)],
     validation: (Rule) =>
       Rule.custom((value, context) =>
         validateCardsTextConfig(value, context.parent?.[legacyFieldName], validationMessage)

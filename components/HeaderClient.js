@@ -8,6 +8,7 @@ import {urlFor} from '../sanity/lib/image'
 
 const hiddenBlockTypes = new Set(['heroBlock', 'ctaBlock', 'contactBlock'])
 const hiddenLegacySectionTypes = new Set(['hero', 'cta', 'contacts'])
+const routedSectionTypes = new Set(['knowledge', 'articles'])
 
 const fallbackSectionTitles = {
   process: 'Порядок работы',
@@ -43,7 +44,11 @@ function buildNavigationItems(sections) {
     .map((section) => {
       const sectionType = section?.sectionType || section?.sectionKey
 
-      if (hiddenBlockTypes.has(section?._type) || hiddenLegacySectionTypes.has(sectionType)) {
+      if (
+        hiddenBlockTypes.has(section?._type) ||
+        hiddenLegacySectionTypes.has(sectionType) ||
+        routedSectionTypes.has(sectionType)
+      ) {
         return null
       }
 
@@ -101,7 +106,18 @@ function LogoLink({settings, companyName, subtitle}) {
 }
 
 export default function HeaderClient({settings, sections}) {
-  const navigationItems = buildNavigationItems(sections)
+  const pathname = usePathname()
+  const sectionNavigationItems = buildNavigationItems(sections).map((item) => ({
+    ...item,
+    href: pathname === '/' ? item.href : `/${item.href}`,
+  }))
+  const navigationItems = [
+    ...sectionNavigationItems,
+    {
+      href: '/articles',
+      title: 'Статьи',
+    },
+  ]
   const phone = settings?.phone || '+7 (999) 000-00-00'
 
   return (

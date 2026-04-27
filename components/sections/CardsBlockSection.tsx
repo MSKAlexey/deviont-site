@@ -2,6 +2,7 @@ import SectionCardImage from './SectionCardImage'
 import SectionHeading from './SectionHeading'
 import HeroRichText, {hasHeroRichTextContent, renderHeroMultilineText} from './HeroRichText'
 import {resolveHeroTypographyStyle} from './heroTypography'
+import ArticleBody from '../articles/ArticleBody'
 
 const detailIconConfig = {
   price: {
@@ -45,7 +46,11 @@ const detailFontFamilyMap = {
 
 function renderCardDescription(text, richText, style) {
   if (hasHeroRichTextContent(richText)) {
-    return <HeroRichText value={richText} as="p" className="builderCardText" style={style} />
+    return (
+      <div className="builderCardTextGroup" style={style}>
+        <ArticleBody value={richText} className="builderCardRichText" />
+      </div>
+    )
   }
 
   if (typeof text !== 'string' || text.length === 0) {
@@ -91,7 +96,7 @@ function renderDetailIcon(type) {
 
   return (
     <span className={`builderCardDetailIcon ${config.className}`} aria-hidden="true">
-      {config.glyph ? (
+      {'glyph' in config ? (
         config.glyph
       ) : (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

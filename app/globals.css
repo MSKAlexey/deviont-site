@@ -517,6 +517,56 @@ textarea {
   text-wrap: pretty;
 }
 
+.builderCardRichText {
+  display: grid;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.96rem;
+  line-height: 1.52;
+}
+
+.builderCardRichText > * {
+  margin: 0;
+}
+
+.builderCardRichText p,
+.builderCardRichText blockquote,
+.builderCardRichText ul,
+.builderCardRichText ol {
+  margin: 0;
+}
+
+.builderCardRichText h2,
+.builderCardRichText h3 {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.builderCardRichText h2 {
+  font-size: 1.05rem;
+}
+
+.builderCardRichText h3 {
+  font-size: 1rem;
+}
+
+.builderCardRichText ul,
+.builderCardRichText ol {
+  padding-left: 1.2rem;
+}
+
+.builderCardRichText blockquote {
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--border);
+  color: var(--text);
+}
+
+.builderCardRichText a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 .builderCardDetails {
   display: grid;
   gap: 8px;
@@ -673,6 +723,214 @@ textarea {
   font-size: 0.95rem;
   line-height: 1.5;
   color: var(--muted);
+}
+
+.articlesPage {
+  min-height: calc(100vh - 84px);
+}
+
+.articlesPageHead {
+  margin-bottom: 28px;
+}
+
+.articlesPageHead h1,
+.articlePageTitle {
+  margin: 0;
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+.articleContainer {
+  max-width: 920px;
+}
+
+.articleBackLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  margin-bottom: 20px;
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.articleBackLink::before {
+  content: '←';
+  margin-right: 8px;
+}
+
+.articleCardLink {
+  color: inherit;
+}
+
+.articleCard {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  height: 100%;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.articleCardLink:hover .articleCard {
+  border-color: #c7d3df;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+}
+
+.articleCardMedia {
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+  background: #e8eef4;
+}
+
+.articleCardImage,
+.articlePageImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.articleCardBody {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.articleCardTitle {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.32;
+}
+
+.articleCardExcerpt,
+.articlePageExcerpt {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.articleCardMore {
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.articleMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.articleMetaItem {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.articleMetaTag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.articlesEmpty {
+  max-width: 520px;
+}
+
+.articlePageCard {
+  padding: 32px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow);
+}
+
+.articlePageHeader {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.articlePageMedia {
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 24px;
+  border-radius: 22px;
+  background: #e8eef4;
+}
+
+.articleBody {
+  color: var(--text);
+}
+
+.articleBody > *:first-child {
+  margin-top: 0;
+}
+
+.articleBody > *:last-child {
+  margin-bottom: 0;
+}
+
+.articleBody p,
+.articleBody ul,
+.articleBody ol,
+.articleBody blockquote {
+  margin: 0 0 18px;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.articleBody h2,
+.articleBody h3 {
+  margin: 28px 0 14px;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+.articleBody h2 {
+  font-size: clamp(1.5rem, 2.7vw, 2.05rem);
+}
+
+.articleBody h3 {
+  font-size: clamp(1.2rem, 2.1vw, 1.5rem);
+}
+
+.articleBody ul,
+.articleBody ol {
+  padding-left: 22px;
+}
+
+.articleBody li + li {
+  margin-top: 8px;
+}
+
+.articleBody blockquote {
+  padding: 16px 18px;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 16px 16px 0;
+  background: rgba(35, 72, 103, 0.06);
+  color: var(--text);
+}
+
+.articleBody a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
 }
 
 .ctaBox {
@@ -944,6 +1202,10 @@ textarea {
 
   .contactPanel {
     padding: 40px;
+  }
+
+  .articlePageCard {
+    padding: 24px;
   }
 
   .heroShell {

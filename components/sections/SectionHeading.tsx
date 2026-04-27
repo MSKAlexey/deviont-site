@@ -1,10 +1,10 @@
 export default function SectionHeading({
-  eyebrow,
+  eyebrow = undefined,
   title,
-  description,
+  description = undefined,
   align = 'left',
-  titleStyle,
-  descriptionStyle,
+  titleStyle = undefined,
+  descriptionStyle = undefined,
 }) {
   const className = align === 'center' ? 'sectionHead center' : 'sectionHead'
 

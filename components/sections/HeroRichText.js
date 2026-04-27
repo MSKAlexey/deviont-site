@@ -70,11 +70,28 @@ function applyHeroMarks(content, marks, markDefs, keyPrefix) {
       return <strong key={`${keyPrefix}-strong-${index}`}>{result}</strong>
     }
 
+    if (mark === 'em') {
+      return <em key={`${keyPrefix}-em-${index}`}>{result}</em>
+    }
+
     if (mark === 'underline') {
       return <u key={`${keyPrefix}-underline-${index}`}>{result}</u>
     }
 
     const markDef = markDefs.find((definition) => definition?._key === mark)
+
+    if (markDef?._type === 'link' && typeof markDef.href === 'string' && markDef.href.trim()) {
+      return (
+        <a
+          key={`${keyPrefix}-link-${index}`}
+          href={markDef.href}
+          rel="noreferrer"
+          target="_blank"
+        >
+          {result}
+        </a>
+      )
+    }
 
     if (markDef?._type === 'inlineTypography') {
       const style = resolveHeroTypographyStyle(markDef)
@@ -136,7 +153,12 @@ function renderHeroRichTextValue(value) {
     .filter(Boolean)
 }
 
-export default function HeroRichText({as: Component = 'span', className, style, value}) {
+export default function HeroRichText({
+  as: Component = 'span',
+  className = undefined,
+  style = undefined,
+  value,
+}) {
   if (!hasHeroRichTextContent(value)) {
     return null
   }

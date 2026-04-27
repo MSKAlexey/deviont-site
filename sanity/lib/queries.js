@@ -280,3 +280,39 @@ export const siteSettingsQuery = `*[_type == "siteSettings" && _id == "siteSetti
     ${pageBuilderSectionProjection}
   }
 }`
+
+const articleListProjection = `
+  _id,
+  _createdAt,
+  title,
+  "slug": slug.current,
+  excerpt,
+  publishedAt,
+  configVersion,
+  image{
+    ...,
+    alt,
+    asset
+  }
+`
+
+const articlePageProjection = `
+  ${articleListProjection},
+  body
+`
+
+export const articlesListQuery = `*[
+  _type == "article" &&
+  isVisible != false &&
+  defined(slug.current)
+] | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc){
+  ${articleListProjection}
+}`
+
+export const articleBySlugQuery = `*[
+  _type == "article" &&
+  isVisible != false &&
+  slug.current == $slug
+][0]{
+  ${articlePageProjection}
+}`

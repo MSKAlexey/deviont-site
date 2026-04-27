@@ -5,11 +5,11 @@ import {urlFor} from '../../sanity/lib/image'
 export default function SectionCardImage({
   image,
   alt,
-  wrapperClassName,
+  wrapperClassName = undefined,
   imageClassName = 'cardImage',
   width = 960,
-  height,
-  fit,
+  height = undefined,
+  fit = undefined,
 }) {
   if (!image?.asset) {
     return null
