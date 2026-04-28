@@ -13,7 +13,6 @@ export const structure = (S) =>
                 .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
             ])
         ),
-
       S.listItem()
         .title('Контент')
         .child(
@@ -23,6 +22,7 @@ export const structure = (S) =>
               S.documentTypeListItem('heroBlockDocument').title('Главный экран'),
               S.documentTypeListItem('textBlockDocument').title('Текстовые блоки'),
               S.documentTypeListItem('cardsBlockDocument').title('Блоки карточек'),
+              S.documentTypeListItem('service').title('Услуги 1С'),
               S.documentTypeListItem('article').title('Статьи'),
               S.documentTypeListItem('certificatesBlockDocument').title('Сертификаты'),
               S.documentTypeListItem('listBlockDocument').title('Списки'),

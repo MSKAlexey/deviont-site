@@ -1,7 +1,7 @@
 import HeaderClient from '../components/HeaderClient'
 import SectionRenderer from '../components/sections/SectionRenderer'
 import {client} from '../sanity/lib/client'
-import {siteSettingsQuery} from '../sanity/lib/queries'
+import {servicesListQuery, siteSettingsQuery} from '../sanity/lib/queries'
 
 export const revalidate = 60
 
@@ -57,7 +57,10 @@ function normalizeConfiguredSections(settings) {
 }
 
 export default async function Page() {
-  const settings = await client.fetch(siteSettingsQuery)
+  const [settings, services] = await Promise.all([
+    client.fetch(siteSettingsQuery),
+    client.fetch(servicesListQuery),
+  ])
   const sections = normalizeConfiguredSections(settings)
 
   return (
@@ -65,7 +68,11 @@ export default async function Page() {
       <div id="top" />
       <HeaderClient settings={settings} sections={sections} />
       <main>
-        <SectionRenderer sections={sections} settings={settings} />
+        <SectionRenderer
+          sections={sections}
+          settings={settings}
+          services={Array.isArray(services) ? services : []}
+        />
       </main>
       <Footer settings={settings} />
     </>

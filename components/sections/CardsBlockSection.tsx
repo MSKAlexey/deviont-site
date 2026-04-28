@@ -1,8 +1,20 @@
+import Link from 'next/link'
+import {
+  findServiceBySlug,
+  findServiceByTitle,
+  getServiceHref,
+  resolveServiceSlug,
+} from '../../lib/services'
+import ArticleBody from '../articles/ArticleBody'
 import SectionCardImage from './SectionCardImage'
 import SectionHeading from './SectionHeading'
-import HeroRichText, {hasHeroRichTextContent, renderHeroMultilineText} from './HeroRichText'
+import HeroRichText, {
+  getHeroPlainText,
+  getHeroRichTextPlainText,
+  hasHeroRichTextContent,
+  renderHeroMultilineText,
+} from './HeroRichText'
 import {resolveHeroTypographyStyle} from './heroTypography'
-import ArticleBody from '../articles/ArticleBody'
 
 const detailIconConfig = {
   price: {
@@ -99,7 +111,14 @@ function renderDetailIcon(type) {
       {'glyph' in config ? (
         config.glyph
       ) : (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           {config.icon}
         </svg>
       )}
@@ -166,7 +185,41 @@ function renderCardDetails(details, typography) {
   )
 }
 
-export default function CardsBlockSection({block, sectionId}) {
+function getCardTitleValue(item) {
+  const richTitle = getHeroRichTextPlainText(item?.titleContent?.content)
+
+  if (richTitle) {
+    return richTitle
+  }
+
+  return getHeroPlainText(item?.title)
+}
+
+function resolveLinkedService(item, services, sectionId) {
+  if (!Array.isArray(services) || services.length === 0) {
+    return null
+  }
+
+  const linkedSlug = resolveServiceSlug(item?.service)
+
+  if (linkedSlug) {
+    const linkedService = findServiceBySlug(services, linkedSlug)
+
+    if (linkedService) {
+      return linkedService
+    }
+  }
+
+  if (sectionId !== 'services') {
+    return null
+  }
+
+  const cardTitle = getCardTitleValue(item)
+
+  return cardTitle ? findServiceByTitle(services, cardTitle) : null
+}
+
+export default function CardsBlockSection({block, sectionId, services}) {
   const sectionTitleContent = block?.titleContent?.content
   const hasSectionTitle = hasHeroRichTextContent(sectionTitleContent) || Boolean(block?.title)
 
@@ -192,6 +245,8 @@ export default function CardsBlockSection({block, sectionId}) {
             const sharedCardTypography = item?.cardTypography || block?.cardTypography
             const cardTitleContent = item?.titleContent?.content
             const cardTextContent = item?.textContent?.content
+            const linkedService = resolveLinkedService(item, services, sectionId)
+            const serviceHref = getServiceHref(linkedService)
             const cardTitleStyle = resolveHeroTypographyStyle(
               item?.titleContent ||
                 item?.titleTypography ||
@@ -207,7 +262,7 @@ export default function CardsBlockSection({block, sectionId}) {
                 block?.cardTypography
             )
 
-            return (
+            const cardContent = (
               <article className="infoCard builderCard" key={item._key || item.title}>
                 {hasCardMedia ? (
                   item.image?.asset ? (
@@ -240,6 +295,16 @@ export default function CardsBlockSection({block, sectionId}) {
                   )}
                 </div>
               </article>
+            )
+
+            if (!serviceHref) {
+              return cardContent
+            }
+
+            return (
+              <Link className="builderCardLink" href={serviceHref} key={item._key || item.title}>
+                {cardContent}
+              </Link>
             )
           })}
         </div>

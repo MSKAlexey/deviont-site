@@ -1700,6 +1700,14 @@ export const cardsBlockItem = defineType({
       rows: 4,
       hidden: true,
     }),
+    defineField({
+      name: 'service',
+      title: 'Страница услуги',
+      type: 'reference',
+      to: [{type: 'service'}],
+      description:
+        'Если выбрать услугу, карточка на сайте будет вести на ее отдельную страницу.',
+    }),
     createCardsCompactTypographyField(
       'cardTypography',
       'Шрифт карточки (legacy)',

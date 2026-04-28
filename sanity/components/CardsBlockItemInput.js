@@ -26,10 +26,11 @@ function renderMember(props, member) {
 
 export default function CardsBlockItemInput(props) {
   const members = props.members || []
-  const memberNames = new Set(['titleContent', 'textContent', 'details', 'image'])
+  const memberNames = new Set(['titleContent', 'textContent', 'service', 'details', 'image'])
 
   const titleContentMember = getFieldMember(members, 'titleContent')
   const textContentMember = getFieldMember(members, 'textContent')
+  const serviceMember = getFieldMember(members, 'service')
   const detailsMember = getFieldMember(members, 'details')
   const imageMember = getFieldMember(members, 'image')
 
@@ -41,6 +42,7 @@ export default function CardsBlockItemInput(props) {
     <Stack space={4}>
       {renderMember(props, titleContentMember)}
       {renderMember(props, textContentMember)}
+      {renderMember(props, serviceMember)}
       {renderMember(props, detailsMember)}
       {renderMember(props, imageMember)}
 

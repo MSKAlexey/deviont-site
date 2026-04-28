@@ -25,9 +25,10 @@ const blockRegistry = {
   },
   cardsBlock: {
     component: CardsBlockSection,
-    selectProps: ({section, sectionId}) => ({
+    selectProps: ({section, sectionId, services}) => ({
       block: section,
       sectionId,
+      services,
     }),
   },
   certificatesBlock: {

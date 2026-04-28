@@ -1,6 +1,12 @@
 const cardsBlockItemsProjection = `
   items[]{
     ...,
+    "service": service->{
+      _id,
+      title,
+      "slug": slug.current,
+      isVisible
+    },
     image{
       ...,
       alt,
@@ -166,22 +172,8 @@ const pageBuilderSectionProjection = `
     buttonText
   ),
   "items": select(
-    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->items[]{
-      ...,
-      image{
-        ...,
-        alt,
-        asset
-      }
-    },
-    _type in ["cardsBlock", "cardsBlockItem"] => items[]{
-      ...,
-      image{
-        ...,
-        alt,
-        asset
-      }
-    },
+    _type in ["cardsBlock", "cardsBlockItem"] && defined(contentDocument->_id) => contentDocument->${cardsBlockItemsProjection.trim()},
+    _type in ["cardsBlock", "cardsBlockItem"] => ${cardsBlockItemsProjection.trim()},
     _type in ["certificatesBlock", "certificatesBlockItem"] && defined(contentDocument->_id) => contentDocument->${certificatesBlockItemsProjection.trim()},
     _type in ["certificatesBlock", "certificatesBlockItem"] => ${certificatesBlockItemsProjection.trim()},
     _type in ["listBlock", "listBlockItem"] && defined(contentDocument->_id) => contentDocument->${listBlockItemsProjection.trim()},
@@ -301,6 +293,32 @@ const articlePageProjection = `
   body
 `
 
+const serviceListProjection = `
+  _id,
+  _createdAt,
+  isVisible,
+  title,
+  text,
+  excerpt,
+  "slug": slug.current,
+  image{
+    ...,
+    alt,
+    asset
+  },
+  priceText,
+  durationText,
+  includedItems,
+  taskItems,
+  seoTitle,
+  seoDescription
+`
+
+const servicePageProjection = `
+  ${serviceListProjection},
+  body
+`
+
 export const articlesListQuery = `*[
   _type == "article" &&
   isVisible != false &&
@@ -315,4 +333,18 @@ export const articleBySlugQuery = `*[
   slug.current == $slug
 ][0]{
   ${articlePageProjection}
+}`
+
+export const servicesListQuery = `*[
+  _type == "service" &&
+  isVisible != false
+]{
+  ${serviceListProjection}
+}`
+
+export const servicesPageQuery = `*[
+  _type == "service" &&
+  isVisible != false
+]{
+  ${servicePageProjection}
 }`

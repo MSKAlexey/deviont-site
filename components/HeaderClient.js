@@ -3,18 +3,30 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import {usePathname} from 'next/navigation'
-import {resolveSectionId} from './sections/sectionIds'
 import {urlFor} from '../sanity/lib/image'
+import {resolveSectionId} from './sections/sectionIds'
 
 const hiddenBlockTypes = new Set(['heroBlock', 'ctaBlock', 'contactBlock'])
 const hiddenLegacySectionTypes = new Set(['hero', 'cta', 'contacts'])
-const routedSectionTypes = new Set(['knowledge', 'articles'])
+const routedSectionTypes = new Set(['knowledge', 'articles', 'services'])
+const servicesNavigationItem = {
+  href: '/services',
+  title: 'Услуги 1С',
+}
+const articlesNavigationItem = {
+  href: '/articles',
+  title: 'Статьи',
+}
+const staticNavigationItems = [servicesNavigationItem, articlesNavigationItem]
+const staticNavigationTitles = new Set(
+  staticNavigationItems.map((item) => item.title.trim().toLowerCase())
+)
 
 const fallbackSectionTitles = {
   process: 'Порядок работы',
   services: 'Услуги 1С',
-  support: 'Сопровождение 1С',
-  advantages: 'Почему вам можно доверять',
+  support: 'Регулярное сопровождение 1С',
+  advantages: 'Почему нам можно доверять',
   products: 'Решения 1С',
   tasks: 'Примеры задач',
   knowledge: 'Статьи',
@@ -55,7 +67,12 @@ function buildNavigationItems(sections) {
       const sectionId = resolveSectionId(section)
       const title = resolveNavigationTitle(section)
 
-      if (!sectionId || !title || seenSectionIds.has(sectionId)) {
+      if (
+        !sectionId ||
+        !title ||
+        seenSectionIds.has(sectionId) ||
+        staticNavigationTitles.has(title.trim().toLowerCase())
+      ) {
         return null
       }
 
@@ -112,11 +129,9 @@ export default function HeaderClient({settings, sections}) {
     href: pathname === '/' ? item.href : `/${item.href}`,
   }))
   const navigationItems = [
+    servicesNavigationItem,
     ...sectionNavigationItems,
-    {
-      href: '/articles',
-      title: 'Статьи',
-    },
+    articlesNavigationItem,
   ]
   const phone = settings?.phone || '+7 (999) 000-00-00'
 
@@ -125,8 +140,8 @@ export default function HeaderClient({settings, sections}) {
       <div className="container headerInner">
         <LogoLink
           settings={settings}
-          companyName={settings?.companyName || 'Интегратор 1С'}
-          subtitle={settings?.subtitle || 'Интегратор 1С'}
+          companyName={settings?.companyName || 'ДЕВИОНТ'}
+          subtitle={settings?.subtitle || 'интегратор 1С'}
         />
 
         <nav className="nav">
