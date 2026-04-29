@@ -11,6 +11,13 @@ export const structure = (S) =>
               S.listItem()
                 .title('Главная страница')
                 .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
+              S.listItem()
+                .title('Услуги')
+                .child(
+                  S.list()
+                    .title('Услуги')
+                    .items([S.documentTypeListItem('service').title('Все услуги')])
+                ),
             ])
         ),
       S.listItem()
