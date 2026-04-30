@@ -1,5 +1,6 @@
 import {Fragment} from 'react'
 import type {ReactNode} from 'react'
+import {resolveHeroTypographyStyle} from '../sections/heroTypography'
 
 type PortableTextSpan = {
   _type?: string
@@ -12,6 +13,7 @@ type PortableTextMarkDef = {
   _key?: string
   _type?: string
   href?: string
+  fontSize?: number | string
 }
 
 type PortableTextBlock = {
@@ -65,6 +67,18 @@ function applyMarks(
         >
           {result}
         </a>
+      )
+    }
+
+    if (markDef?._type === 'inlineTypography') {
+      const style = resolveHeroTypographyStyle(markDef)
+
+      return style ? (
+        <span key={`${keyPrefix}-inline-typography-${index}`} style={style}>
+          {result}
+        </span>
+      ) : (
+        result
       )
     }
 

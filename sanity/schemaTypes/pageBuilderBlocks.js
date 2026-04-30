@@ -1,4 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
+import {TextIcon} from '@sanity/icons'
 import CardDetailTypographyInput from '../components/CardDetailTypographyInput.js'
 import CompactTypographyInput from '../components/CompactTypographyInput.js'
 import CardsBlockInput from '../components/CardsBlockInput.js'
@@ -8,6 +9,7 @@ import CardsTextConfigInput from '../components/CardsTextConfigInput.js'
 import FieldInputOnly from '../components/FieldInputOnly.js'
 import HeroFieldWithoutTitle from '../components/HeroFieldWithoutTitle.js'
 import HeroTextConfigInput from '../components/HeroTextConfigInput.js'
+import InlineTypographyAnnotation from '../components/InlineTypographyAnnotation.js'
 import {defineImageField} from './lib/defineImageField.js'
 
 const cardsBlockDetailTypeOptions = [
@@ -202,6 +204,13 @@ const heroTypographyFontWeightOptions = [
   {title: '900 — максимально жирный', value: '900'},
 ]
 
+const inlineFontSizeOptions = [12, 14, 15, 16, 18, 20, 22, 24, 28, 32, 40, 48, 56, 64].map(
+  (value) => ({
+    title: `${value} px`,
+    value,
+  })
+)
+
 const cardsBlockTitleTypographyDefaults = {
   fontFamily: 'segoe-ui',
   fontWeight: '700',
@@ -276,7 +285,7 @@ function createHeroPortableTextField(name, title, hidden, rows = 3, description,
             {title: '\u041a\u0443\u0440\u0441\u0438\u0432', value: 'em'},
             {title: 'Подчёркнутый', value: 'underline'},
           ],
-          annotations: [],
+          annotations: [createInlineTypographyAnnotation()],
         },
       }),
     ],
@@ -825,6 +834,31 @@ function createCardsLinkFields() {
   ]
 }
 
+function createInlineTypographyAnnotation() {
+  return defineArrayMember({
+    name: 'inlineTypography',
+    title: 'Размер',
+    type: 'object',
+    icon: TextIcon,
+    components: {
+      annotation: InlineTypographyAnnotation,
+    },
+    fields: [
+      defineField({
+        name: 'fontSize',
+        title: 'Размер шрифта, px',
+        type: 'number',
+        initialValue: 16,
+        options: {
+          list: inlineFontSizeOptions,
+          layout: 'dropdown',
+        },
+        validation: (Rule) => Rule.required().min(1).max(160),
+      }),
+    ],
+  })
+}
+
 function createCardsPortableTextField(name, rows = 3, options = {}) {
   const isSingleLine = options.oneLine ?? rows === 1
 
@@ -867,6 +901,7 @@ function createCardsPortableTextField(name, rows = 3, options = {}) {
             {title: 'Подчёркнутый', value: 'underline'},
           ],
           annotations: [
+            createInlineTypographyAnnotation(),
             {
               name: 'link',
               title: 'Ссылка',
