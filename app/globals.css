@@ -1345,6 +1345,21 @@ textarea {
   resize: vertical;
 }
 
+.captchaField input[aria-invalid='true'] {
+  border-color: #c74949;
+  box-shadow: 0 0 0 4px rgba(199, 73, 73, 0.08);
+}
+
+.formHint {
+  margin: -6px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.formHintError {
+  color: #a83737;
+}
+
 .contactPanel .btnPrimary {
   padding: 14px 24px;
   border-radius: 12px;
@@ -1352,6 +1367,14 @@ textarea {
 
 .contactPanel .btnPrimary:hover {
   background: #20425f;
+}
+
+.contactPanel .btnPrimary:disabled,
+.contactPanel .btnPrimary:disabled:hover {
+  background: #8ca1b2;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .formSubmit {
