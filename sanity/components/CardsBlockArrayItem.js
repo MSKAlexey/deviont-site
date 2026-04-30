@@ -11,7 +11,7 @@ import {
 const API_VERSION = '2026-03-27'
 const CARDS_BLOCK_PREVIEW_QUERY = `
   coalesce(
-    *[_id == $draftId][0]{
+    *[_id == $draftId && count(items) > 0][0]{
       title,
       titleContent,
       "itemsCount": count(items)
@@ -23,6 +23,12 @@ const CARDS_BLOCK_PREVIEW_QUERY = `
     }
   )
 `
+
+function getPublishedDocumentId(documentId) {
+  return typeof documentId === 'string' && documentId.startsWith('drafts.')
+    ? documentId.slice('drafts.'.length)
+    : documentId
+}
 
 function stopAndPrevent(event) {
   event.preventDefault()
@@ -92,14 +98,6 @@ function getTitle(props, linkedPreview) {
   return props.value?.title || props.title
 }
 
-function getSubtitle(props, linkedPreview) {
-  if (isCardsBlockValue(props.value)) {
-    return `${getCardsCount(props.value, linkedPreview)} карточек`
-  }
-
-  return props.subtitle
-}
-
 function getPreviewItems(props, linkedPreview) {
   if (!isCardsBlockValue(props.value)) {
     return props.items
@@ -139,7 +137,7 @@ export default function CardsBlockArrayItem(props) {
   const disabled = props.readOnly === true || syncState !== 'idle'
   const statusTone = hidden ? 'caution' : 'positive'
   const statusText = hidden ? 'Скрыто' : 'Активна'
-  const linkedDocumentId = props.value?.contentDocument?._ref
+  const linkedDocumentId = getPublishedDocumentId(props.value?.contentDocument?._ref)
   const [linkedPreviewState, setLinkedPreviewState] = useState({
     documentId: null,
     value: null,
@@ -303,7 +301,7 @@ export default function CardsBlockArrayItem(props) {
           ...props,
           items: getPreviewItems(props, linkedPreview),
           title: getTitle(props, linkedPreview),
-          subtitle: getSubtitle(props, linkedPreview),
+          subtitle: undefined,
         })}
       </Box>
     </Flex>

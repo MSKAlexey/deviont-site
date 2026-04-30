@@ -1,5 +1,4 @@
-import {useEffect, useState} from 'react'
-import {defineArrayMember, defineField, defineType, useClient} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 import CardDetailTypographyInput from '../components/CardDetailTypographyInput.js'
 import CompactTypographyInput from '../components/CompactTypographyInput.js'
 import CardsBlockInput from '../components/CardsBlockInput.js'
@@ -11,7 +10,6 @@ import HeroFieldWithoutTitle from '../components/HeroFieldWithoutTitle.js'
 import HeroTextConfigInput from '../components/HeroTextConfigInput.js'
 import {defineImageField} from './lib/defineImageField.js'
 
-const API_VERSION = '2026-03-27'
 const cardsBlockDetailTypeOptions = [
   {title: 'Цена', value: 'price'},
   {title: 'Срок', value: 'duration'},
@@ -20,17 +18,6 @@ const cardsBlockDetailTypeOptions = [
 const cardsBlockDetailTypeLabels = Object.fromEntries(
   cardsBlockDetailTypeOptions.map((item) => [item.value, item.title])
 )
-const CARDS_BLOCK_DOCUMENT_PREVIEW_QUERY = `
-  coalesce(
-    *[_id == $draftId][0]{
-      "itemsCount": count(items)
-    },
-    *[_id == $publishedId][0]{
-      "itemsCount": count(items)
-    }
-  )
-`
-
 function truncateText(value, maxLength = 90) {
   if (!value) {
     return ''
@@ -221,6 +208,30 @@ const cardsBlockTitleTypographyDefaults = {
   fontSize: 40,
 }
 
+const heroTitleTypographyDefaults = {
+  fontFamily: 'segoe-ui',
+  fontWeight: '700',
+  fontSize: 48,
+}
+
+const heroSubtitleTypographyDefaults = {
+  fontFamily: 'segoe-ui',
+  fontWeight: '400',
+  fontSize: 18,
+}
+
+const heroPreButtonTypographyDefaults = {
+  fontFamily: 'segoe-ui',
+  fontWeight: '500',
+  fontSize: 16,
+}
+
+const heroButtonTypographyDefaults = {
+  fontFamily: 'segoe-ui',
+  fontWeight: '600',
+  fontSize: 16,
+}
+
 const cardTitleTypographyDefaults = {
   fontFamily: 'segoe-ui',
   fontWeight: '700',
@@ -377,6 +388,7 @@ function createHeroTextConfigField({
   legacyFormattedFieldName,
   validationMessage,
   validationBuilder,
+  defaults,
 }) {
   return defineField({
     name,
@@ -384,12 +396,15 @@ function createHeroTextConfigField({
     type: 'object',
     hidden,
     description: 'Поддерживает жирный, подчёркнутый текст и переносы строк по Enter.',
+    options: {
+      defaultTypography: defaults || heroSubtitleTypographyDefaults,
+    },
     components: {
       input: HeroTextConfigInput,
     },
     fields: [
+      ...createHeroTypographySettingFields(defaults || heroSubtitleTypographyDefaults),
       createHeroPortableTextField('content', '', false, rows, undefined, HeroFieldWithoutTitle),
-      ...createHeroTypographySettingFields(),
     ],
     validation: validationBuilder
       ? validationBuilder
@@ -415,6 +430,7 @@ function createHeroPreButtonFields(isLinkedMode = false) {
       name: 'preButtonContent',
       title: 'Текст над кнопкой',
       rows: 2,
+      defaults: heroPreButtonTypographyDefaults,
       hidden,
       legacyTextFieldName: 'preButtonText',
       legacyFormattedFieldName: 'preButtonTextFormatted',
@@ -488,6 +504,7 @@ function createHeroFields() {
       name: 'titleContent',
       title: 'Заголовок',
       rows: 1,
+      defaults: heroTitleTypographyDefaults,
       legacyTextFieldName: 'title',
       legacyFormattedFieldName: 'titleFormatted',
       validationMessage: 'Заполните заголовок',
@@ -505,6 +522,7 @@ function createHeroFields() {
       name: 'subtitleContent',
       title: 'Подзаголовок',
       rows: 3,
+      defaults: heroSubtitleTypographyDefaults,
       legacyTextFieldName: 'subtitle',
       legacyFormattedFieldName: 'subtitleFormatted',
       validationMessage: 'Заполните подзаголовок',
@@ -535,6 +553,7 @@ function createHeroFields() {
       name: 'primaryButtonContent',
       title: 'Кнопка',
       rows: 2,
+      defaults: heroButtonTypographyDefaults,
       legacyTextFieldName: 'primaryButtonText',
       legacyFormattedFieldName: 'primaryButtonTextFormatted',
       validationMessage: 'Заполните кнопку',
@@ -575,6 +594,7 @@ function createLinkedHeroFields() {
       name: 'titleContent',
       title: 'Заголовок',
       rows: 1,
+      defaults: heroTitleTypographyDefaults,
       hidden: ({parent}) => shouldHideLocalFields(parent, hasLegacyHeroContent),
       legacyTextFieldName: 'title',
       legacyFormattedFieldName: 'titleFormatted',
@@ -603,6 +623,7 @@ function createLinkedHeroFields() {
       name: 'subtitleContent',
       title: 'Подзаголовок',
       rows: 3,
+      defaults: heroSubtitleTypographyDefaults,
       hidden: ({parent}) => shouldHideLocalFields(parent, hasLegacyHeroContent),
       legacyTextFieldName: 'subtitle',
       legacyFormattedFieldName: 'subtitleFormatted',
@@ -646,6 +667,7 @@ function createLinkedHeroFields() {
       name: 'primaryButtonContent',
       title: 'Кнопка',
       rows: 2,
+      defaults: heroButtonTypographyDefaults,
       hidden: ({parent}) => shouldHideLocalFields(parent, hasLegacyHeroContent),
       legacyTextFieldName: 'primaryButtonText',
       legacyFormattedFieldName: 'primaryButtonTextFormatted',
@@ -803,8 +825,8 @@ function createCardsLinkFields() {
   ]
 }
 
-function createCardsPortableTextField(name, rows = 3) {
-  const isSingleLine = rows === 1
+function createCardsPortableTextField(name, rows = 3, options = {}) {
+  const isSingleLine = options.oneLine ?? rows === 1
 
   return defineField({
     name,
@@ -865,14 +887,24 @@ function validateCardsTextConfig(value, legacyValue, message) {
     : message
 }
 
+function validateLinkedCardsTextConfig(value, context, legacyFieldName, message) {
+  if (context.parent?.contentDocument?._ref || !hasLegacyCardsContent(context.parent)) {
+    return true
+  }
+
+  return validateCardsTextConfig(value, context.parent?.[legacyFieldName], message)
+}
+
 function createCardsTextConfigField({
   name,
   title,
   rows = 3,
+  oneLine,
   hidden = false,
   defaults,
   legacyFieldName,
   validationMessage,
+  validationBuilder,
 }) {
   return defineField({
     name,
@@ -887,11 +919,13 @@ function createCardsTextConfigField({
     components: {
       input: CardsTextConfigInput,
     },
-    fields: [createCardsPortableTextField('content', rows)],
-    validation: (Rule) =>
-      Rule.custom((value, context) =>
-        validateCardsTextConfig(value, context.parent?.[legacyFieldName], validationMessage)
-      ),
+    fields: [createCardsPortableTextField('content', rows, {oneLine})],
+    validation: validationBuilder
+      ? validationBuilder
+      : (Rule) =>
+          Rule.custom((value, context) =>
+            validateCardsTextConfig(value, context.parent?.[legacyFieldName], validationMessage)
+          ),
   })
 }
 
@@ -920,6 +954,7 @@ function createCardsSharedFields(isLinkedMode = false) {
     ? ({parent}) =>
         Boolean(parent?.contentDocument?._ref) || !hasLegacyCardsContent(parent)
     : false
+  const titleValidationMessage = 'Заполните заголовок'
 
   return [
     createCardsTextConfigField({
@@ -929,7 +964,13 @@ function createCardsSharedFields(isLinkedMode = false) {
       hidden,
       defaults: cardsBlockTitleTypographyDefaults,
       legacyFieldName: 'title',
-      validationMessage: 'Заполните заголовок',
+      validationMessage: titleValidationMessage,
+      validationBuilder: isLinkedMode
+        ? (Rule) =>
+            Rule.custom((value, context) =>
+              validateLinkedCardsTextConfig(value, context, 'title', titleValidationMessage)
+            )
+        : undefined,
     }),
     defineField({
       name: 'title',
@@ -1339,75 +1380,9 @@ function defineAdminTitleField() {
 }
 
 function CardsBlockPreview(props) {
-  const client = useClient({apiVersion: API_VERSION})
-  const publishedId =
-    typeof props._id !== 'string'
-      ? null
-      : props._id.startsWith('drafts.')
-        ? props._id.slice('drafts.'.length)
-        : props._id
-  const [documentItemsCountState, setDocumentItemsCountState] = useState({
-    documentId: null,
-    itemsCount: null,
-  })
-  const hasItems =
-    Array.isArray(props.items) || (props.items && typeof props.items.length === 'number')
-  const itemsCount = getItemsCount(props.items)
-
-  useEffect(() => {
-    if (!publishedId) {
-      return
-    }
-
-    let isCancelled = false
-
-    client
-      .fetch(CARDS_BLOCK_DOCUMENT_PREVIEW_QUERY, {
-        draftId: `drafts.${publishedId}`,
-        publishedId,
-      })
-      .then((result) => {
-        if (!isCancelled) {
-          setDocumentItemsCountState({
-            documentId: publishedId,
-            itemsCount: typeof result?.itemsCount === 'number' ? result.itemsCount : null,
-          })
-        }
-      })
-      .catch(() => {
-        if (!isCancelled) {
-          setDocumentItemsCountState({
-            documentId: publishedId,
-            itemsCount: null,
-          })
-        }
-      })
-
-    return () => {
-      isCancelled = true
-    }
-  }, [client, props._updatedAt, publishedId])
-
-  const documentItemsCount =
-    documentItemsCountState.documentId === publishedId
-      ? documentItemsCountState.itemsCount
-      : null
-  const resolvedItemsCount =
-    typeof documentItemsCount === 'number'
-      ? documentItemsCount
-      : hasItems
-        ? itemsCount
-        : null
-  const subtitle =
-    typeof resolvedItemsCount === 'number'
-      ? `${resolvedItemsCount} карточек`
-      : typeof props.subtitle === 'string' && props.subtitle.length > 0
-        ? props.subtitle
-        : `${itemsCount} карточек`
-
   return props.renderDefault({
     ...props,
-    subtitle,
+    subtitle: undefined,
   })
 }
 
@@ -1448,16 +1423,13 @@ const cardsPreview = {
   select: {
     title: 'title',
     titleContent: 'titleContent',
-    items: 'items',
     media: 'items.0.image',
   },
-  prepare({title, titleContent, items, media}) {
-    const resolvedItemsCount = getItemsCount(items)
+  prepare({title, titleContent, media}) {
     const resolvedTitle = resolveCardsPreviewText(titleContent, title)
 
     return {
       title: resolvedTitle || 'Блок карточек',
-      subtitle: `${resolvedItemsCount} карточек`,
       media,
     }
   },
@@ -1466,15 +1438,11 @@ const cardsPreview = {
 const certificatesPreview = {
   select: {
     title: 'title',
-    items: 'items',
     media: 'items.0.image',
   },
-  prepare({title, items, media}) {
-    const resolvedItemsCount = getItemsCount(items)
-
+  prepare({title, media}) {
     return {
       title: title || 'Сертификаты',
-      subtitle: `${resolvedItemsCount} сертификатов`,
       media,
     }
   },
@@ -1483,14 +1451,10 @@ const certificatesPreview = {
 const listPreview = {
   select: {
     title: 'title',
-    items: 'items',
   },
-  prepare({title, items}) {
-    const itemsCount = Array.isArray(items) ? items.filter(Boolean).length : 0
-
+  prepare({title}) {
     return {
       title: title || 'Блок списка',
-      subtitle: `${itemsCount} пунктов`,
     }
   },
 }
@@ -1585,17 +1549,28 @@ const cardsBlockEditorPreview = {
     adminTitle: 'adminTitle',
     title: 'title',
     titleContent: 'titleContent',
-    itemsCount: 'items.length',
+    linkedTitle: 'contentDocument.title',
+    linkedTitleContent: 'contentDocument.titleContent',
     media: 'items.0.image',
+    linkedMedia: 'contentDocument.items.0.image',
   },
-  prepare({adminTitle, title, titleContent, itemsCount, media}) {
-    const resolvedItemsCount = getItemsCount(itemsCount)
-    const resolvedTitle = resolveCardsPreviewText(titleContent, title)
+  prepare({
+    adminTitle,
+    title,
+    titleContent,
+    linkedTitle,
+    linkedTitleContent,
+    media,
+    linkedMedia,
+  }) {
+    const resolvedTitle = resolveCardsPreviewText(
+      linkedTitleContent || titleContent,
+      linkedTitle || title
+    )
 
     return {
       title: resolvePreviewTitle(adminTitle, resolvedTitle, 'Блок карточек'),
-      subtitle: `${resolvedItemsCount} карточек`,
-      media,
+      media: media || linkedMedia,
     }
   },
 }
@@ -1605,18 +1580,12 @@ const certificatesBlockEditorPreview = {
     adminTitle: 'adminTitle',
     title: 'title',
     linkedTitle: 'contentDocument.title',
-    itemsCount: 'items.length',
-    linkedItemsCount: 'contentDocument.items.length',
     media: 'items.0.image',
     linkedMedia: 'contentDocument.items.0.image',
   },
-  prepare({adminTitle, title, linkedTitle, itemsCount, linkedItemsCount, media, linkedMedia}) {
-    const resolvedItemsCount =
-      typeof linkedItemsCount === 'number' ? linkedItemsCount : getItemsCount(itemsCount)
-
+  prepare({adminTitle, title, linkedTitle, media, linkedMedia}) {
     return {
       title: resolvePreviewTitle(adminTitle, title || linkedTitle, 'Сертификаты'),
-      subtitle: `${resolvedItemsCount} сертификатов`,
       media: media || linkedMedia,
     }
   },
@@ -1626,14 +1595,10 @@ const listBlockEditorPreview = {
   select: {
     adminTitle: 'adminTitle',
     title: 'title',
-    items: 'items',
   },
-  prepare({adminTitle, title, items}) {
-    const itemsCount = Array.isArray(items) ? items.filter(Boolean).length : 0
-
+  prepare({adminTitle, title}) {
     return {
       title: resolvePreviewTitle(adminTitle, title, 'Блок списка'),
-      subtitle: `${itemsCount} пунктов`,
     }
   },
 }
@@ -1675,6 +1640,7 @@ export const cardsBlockItem = defineType({
       name: 'titleContent',
       title: 'Заголовок',
       rows: 1,
+      oneLine: false,
       defaults: cardTitleTypographyDefaults,
       legacyFieldName: 'title',
       validationMessage: 'Заполните заголовок карточки',
