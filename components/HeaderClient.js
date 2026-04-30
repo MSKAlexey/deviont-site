@@ -96,6 +96,7 @@ function LogoLink({settings, companyName, subtitle}) {
   const handleClick = (event) => {
     if (pathname === '/') {
       event.preventDefault()
+      window.history.pushState(null, '', '/')
       window.scrollTo({top: 0, behavior: 'smooth'})
     }
   }
