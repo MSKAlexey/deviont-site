@@ -10,6 +10,7 @@ import FieldInputOnly from '../components/FieldInputOnly.js'
 import HeroFieldWithoutTitle from '../components/HeroFieldWithoutTitle.js'
 import HeroTextConfigInput from '../components/HeroTextConfigInput.js'
 import InlineTypographyAnnotation from '../components/InlineTypographyAnnotation.js'
+import PlainTextConfigField from '../components/PlainTextConfigField.js'
 import {defineImageField} from './lib/defineImageField.js'
 
 const cardsBlockDetailTypeOptions = [
@@ -954,6 +955,7 @@ function createCardsTextConfigField({
       defaultTypography: defaults,
     },
     components: {
+      field: plainTextInput ? PlainTextConfigField : undefined,
       input: CardsTextConfigInput,
     },
     fields: [createCardsPortableTextField('content', rows, {oneLine})],
