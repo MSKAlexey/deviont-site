@@ -67,6 +67,7 @@ function createPortableTextBlock(text) {
 export default function CardsTextConfigInput(props) {
   const {onChange, readOnly, schemaType, value} = props
   const rows = schemaType?.options?.rows || 3
+  const isPlainTextInput = schemaType?.options?.plainTextInput === true
   const legacyFieldName = schemaType?.options?.legacyFieldName
   const contentMember = getFieldMember(props.members, 'content')
   const editorHeight = getEditorHeight(rows)
@@ -100,6 +101,47 @@ export default function CardsTextConfigInput(props) {
     }
   }, [legacyText, onChange, readOnly, value])
 
+  if (isPlainTextInput) {
+    const plainText = getPortableTextPlainText(value?.content) || legacyText || ''
+
+    return (
+      <div className="cardsTextConfigInputContent">
+        <style>{`
+          .cardsPlainTextInput {
+            width: 100%;
+            min-height: 40px;
+            padding: 0 12px;
+            border: 1px solid var(--card-border-color, #2f3548);
+            border-radius: 4px;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            line-height: 40px;
+          }
+
+          .cardsPlainTextInput:focus {
+            outline: none;
+            box-shadow: 0 0 0 1px var(--card-focus-ring-color, #6e8cff);
+          }
+        `}</style>
+        <input
+          className="cardsPlainTextInput"
+          type="text"
+          value={plainText}
+          disabled={readOnly}
+          onChange={(event) =>
+            onChange(
+              PatchEvent.from([
+                setIfMissing({}),
+                set(createPortableTextBlock(event.currentTarget.value), ['content']),
+              ])
+            )
+          }
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="cardsTextConfigInputContent">
       <style>{`
@@ -120,4 +162,24 @@ export default function CardsTextConfigInput(props) {
       {renderMember(props, contentMember)}
     </div>
   )
+}
+
+function getPortableTextPlainText(value) {
+  if (!Array.isArray(value)) {
+    return ''
+  }
+
+  return value
+    .map((block) => {
+      if (block?._type !== 'block' || !Array.isArray(block.children)) {
+        return ''
+      }
+
+      return block.children
+        .map((child) => (child?._type === 'span' && typeof child.text === 'string' ? child.text : ''))
+        .join('')
+    })
+    .filter(Boolean)
+    .join(' ')
+    .trim()
 }

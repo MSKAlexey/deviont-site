@@ -935,6 +935,7 @@ function createCardsTextConfigField({
   title,
   rows = 3,
   oneLine,
+  plainTextInput = false,
   hidden = false,
   defaults,
   legacyFieldName,
@@ -948,6 +949,7 @@ function createCardsTextConfigField({
     hidden,
     options: {
       rows,
+      plainTextInput,
       legacyFieldName,
       defaultTypography: defaults,
     },
@@ -996,6 +998,7 @@ function createCardsSharedFields(isLinkedMode = false) {
       name: 'titleContent',
       title: 'Заголовок',
       rows: 1,
+      plainTextInput: true,
       hidden,
       defaults: cardsBlockTitleTypographyDefaults,
       legacyFieldName: 'title',

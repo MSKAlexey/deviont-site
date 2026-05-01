@@ -221,16 +221,16 @@ function resolveLinkedService(item, services, sectionId) {
 
 export default function CardsBlockSection({block, sectionId, services}) {
   const sectionTitleContent = block?.titleContent?.content
-  const hasSectionTitle = hasHeroRichTextContent(sectionTitleContent) || Boolean(block?.title)
+  const sectionTitlePlainText = getHeroRichTextPlainText(sectionTitleContent)
+  const hasSectionTitle = Boolean(sectionTitlePlainText || block?.title)
 
   if (!hasSectionTitle || !Array.isArray(block.items) || block.items.length === 0) {
     return null
   }
 
   const hasCardMedia = block.items.some((item) => item?.image?.asset)
-  const sectionTitleStyle = resolveHeroTypographyStyle(block?.titleContent || block?.titleTypography)
-  const sectionTitle = hasHeroRichTextContent(sectionTitleContent) ? (
-    <HeroRichText value={sectionTitleContent} as="span" />
+  const sectionTitle = sectionTitlePlainText ? (
+    renderHeroMultilineText(sectionTitlePlainText, 'cards-block-title')
   ) : (
     renderHeroMultilineText(block.title, 'cards-block-title')
   )
@@ -238,7 +238,7 @@ export default function CardsBlockSection({block, sectionId, services}) {
   return (
     <section className="section" id={sectionId}>
       <div className="container">
-        <SectionHeading title={sectionTitle} titleStyle={sectionTitleStyle} />
+        <SectionHeading title={sectionTitle} />
 
         <div className="sectionCardsGrid sectionCardsGridThree">
           {block.items.map((item) => {
