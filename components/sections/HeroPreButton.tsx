@@ -96,9 +96,11 @@ export default function HeroPreButton({text, richText, iconPreset, customIcon, t
       {hasCustomIcon ? (
         <span className="heroPreButtonIcon" aria-hidden="true">
           <img
-            src={urlFor(customIcon).url()}
+            src={urlFor(customIcon).width(48).height(48).fit('max').url()}
             alt=""
             className="heroPreButtonIconImage"
+            loading="lazy"
+            decoding="async"
           />
         </span>
       ) : hasPresetIcon ? (

@@ -32,6 +32,7 @@ export default function SectionCardImage({
         alt={image.alt || alt || ''}
         className={imageClassName}
         loading="lazy"
+        decoding="async"
       />
     </div>
   )
