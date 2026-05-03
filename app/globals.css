@@ -517,6 +517,11 @@ textarea {
   text-wrap: pretty;
 }
 
+.builderCardBody:has(.builderCardDetails) .builderCardText,
+.builderCardBody:has(.builderCardDetails) .builderCardTextGroup {
+  min-height: 4.56em;
+}
+
 .builderCardRichText {
   display: grid;
   gap: 0.5rem;
