@@ -104,6 +104,7 @@ export default async function ArticlePage({
                   width={1440}
                   height={840}
                   fit="crop"
+                  sizes="(max-width: 720px) calc(100vw - 72px), (max-width: 1180px) calc(100vw - 88px), 1092px"
                   wrapperClassName="articlePageMedia"
                   imageClassName="articlePageImage"
                 />

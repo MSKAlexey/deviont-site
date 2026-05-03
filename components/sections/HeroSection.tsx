@@ -132,7 +132,10 @@ export default function HeroSection({settings, block, sectionId = 'hero'}) {
             alt={heroTitlePlainText}
             wrapperClassName="heroMedia"
             imageClassName="heroImage"
-            width={1200}
+            width={880}
+            sizes="(max-width: 720px) 170px, (max-width: 1180px) 340px, 440px"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
       </div>

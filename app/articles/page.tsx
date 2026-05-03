@@ -89,6 +89,7 @@ export default async function ArticlesPage() {
                           width={720}
                           height={420}
                           fit="crop"
+                          sizes="(max-width: 720px) calc(100vw - 72px), (max-width: 1180px) calc((100vw - 154px) / 2), 327px"
                           wrapperClassName="articleCardMedia"
                           imageClassName="articleCardImage"
                         />

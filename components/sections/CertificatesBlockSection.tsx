@@ -57,6 +57,7 @@ function CertificateCard({item}) {
         image={item.image}
         alt={item.title}
         width={760}
+        sizes="(max-width: 720px) calc(100vw - 72px), (max-width: 1180px) calc((100vw - 154px) / 2), 327px"
         wrapperClassName="certificateCardMedia"
         imageClassName="certificateCardImage"
       />

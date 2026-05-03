@@ -128,6 +128,7 @@ export default function ListBlockSection({block, sectionId}) {
                         image={item.image}
                         alt={title || item.text}
                         width={112}
+                        sizes="56px"
                         wrapperClassName={mediaClassName}
                         imageClassName="workflowCardImage workflowCardImageSmall"
                       />
@@ -143,6 +144,7 @@ export default function ListBlockSection({block, sectionId}) {
                       image={item.image}
                       alt={title || item.text}
                       width={item.imageSize === 'small' ? 96 : item.imageSize === 'large' ? 720 : 520}
+                      sizes="(max-width: 720px) calc(100vw - 72px), (max-width: 1180px) calc((100vw - 154px) / 2), 230px"
                       wrapperClassName={mediaClassName}
                       imageClassName="workflowCardImage"
                     />
