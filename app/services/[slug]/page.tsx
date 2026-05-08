@@ -170,6 +170,7 @@ export default async function ServicePage({
   const serviceExamples = getFilledStringItems(service.examples)
   const serviceConfigurations = getFilledStringItems(service.configurations)
   const serviceWorkflowSteps = getFilledStringItems(service.workflowSteps)
+  const serviceEstimateRequirements = getFilledStringItems(service.estimateRequirements)
   const serviceFaqItems = getFilledFaqItems(service.faqItems)
   const relatedServices = resolvedServices
     .filter((item) => {
@@ -285,6 +286,17 @@ export default async function ServicePage({
                       <ul className="serviceBulletList">
                         {service.taskItems.map((item: string, index: number) => (
                           <li key={`${service._id}-tasks-${index}`}>{item}</li>
+                        ))}
+                      </ul>
+                    </section>
+                  ) : null}
+
+                  {serviceEstimateRequirements.length > 0 ? (
+                    <section className="serviceSectionCard">
+                      <h2>Что нужно для оценки доработки</h2>
+                      <ul className="serviceBulletList">
+                        {serviceEstimateRequirements.map((item: string, index: number) => (
+                          <li key={`${service._id}-estimate-requirement-${index}`}>{item}</li>
                         ))}
                       </ul>
                     </section>

@@ -146,6 +146,11 @@ export const service = defineType({
       'Список этапов работы, которые будут показаны на странице услуги.'
     ),
     createStringListField('taskItems', 'Какие задачи решаем'),
+    createStringListField(
+      'estimateRequirements',
+      'Что нужно для оценки доработки',
+      'Список данных, которые нужны для оценки задачи по доработке 1С.'
+    ),
     defineField({
       name: 'faqItems',
       title: 'Частые вопросы',

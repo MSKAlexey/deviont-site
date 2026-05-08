@@ -321,6 +321,7 @@ const servicePageProjection = `
   examples,
   configurations,
   workflowSteps,
+  estimateRequirements,
   faqItems[]{
     question,
     answer
