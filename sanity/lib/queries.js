@@ -319,7 +319,6 @@ const servicePageProjection = `
   body,
   examples,
   configurations,
-  configurationsIntro,
   workflowSteps
 `
 
