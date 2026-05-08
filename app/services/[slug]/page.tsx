@@ -133,6 +133,9 @@ export default async function ServicePage({
 
   const sections = normalizeConfiguredSections(settings)
   const summary = getServiceSummary(service)
+  const serviceExamples = Array.isArray(service.examples)
+    ? service.examples.filter((item: unknown) => typeof item === 'string' && item.trim().length > 0)
+    : []
   const relatedServices = resolvedServices
     .filter((item) => item._id !== service._id && getServiceHref(item))
     .slice(0, 5)
@@ -188,6 +191,17 @@ export default async function ServicePage({
                       <ul className="serviceBulletList">
                         {service.includedItems.map((item: string, index: number) => (
                           <li key={`${service._id}-included-${index}`}>{item}</li>
+                        ))}
+                      </ul>
+                    </section>
+                  ) : null}
+
+                  {serviceExamples.length > 0 ? (
+                    <section className="serviceSectionCard">
+                      <h2>Примеры доработок 1С</h2>
+                      <ul className="serviceBulletList">
+                        {serviceExamples.map((item: string, index: number) => (
+                          <li key={`${service._id}-examples-${index}`}>{item}</li>
                         ))}
                       </ul>
                     </section>

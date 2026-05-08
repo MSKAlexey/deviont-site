@@ -64,10 +64,11 @@ function createServiceBodyField() {
   })
 }
 
-function createStringListField(name, title) {
+function createStringListField(name, title, description) {
   return defineField({
     name,
     title,
+    ...(description ? {description} : {}),
     type: 'array',
     of: [defineArrayMember({type: 'string'})],
     options: {
@@ -124,6 +125,11 @@ export const service = defineType({
       rows: 2,
     }),
     createStringListField('includedItems', 'Что входит в услугу'),
+    createStringListField(
+      'examples',
+      'Примеры доработок',
+      'Список примеров работ, которые будут показаны на странице услуги.'
+    ),
     createStringListField('taskItems', 'Какие задачи решаем'),
     defineImageField(),
     defineField({
