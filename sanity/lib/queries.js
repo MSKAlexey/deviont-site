@@ -317,6 +317,7 @@ const serviceListProjection = `
 const servicePageProjection = `
   ${serviceListProjection},
   body,
+  whenNeededItems,
   examples,
   configurations,
   workflowSteps,

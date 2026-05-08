@@ -124,6 +124,11 @@ export const service = defineType({
       type: 'text',
       rows: 2,
     }),
+    createStringListField(
+      'whenNeededItems',
+      'Когда нужна доработка 1С',
+      'Список ситуаций, когда клиенту может понадобиться доработка 1С.'
+    ),
     createStringListField('includedItems', 'Что входит в услугу'),
     createStringListField(
       'examples',

@@ -166,6 +166,7 @@ export default async function ServicePage({
 
   const sections = normalizeConfiguredSections(settings)
   const summary = getServiceSummary(service)
+  const serviceWhenNeededItems = getFilledStringItems(service.whenNeededItems)
   const serviceExamples = getFilledStringItems(service.examples)
   const serviceConfigurations = getFilledStringItems(service.configurations)
   const serviceWorkflowSteps = getFilledStringItems(service.workflowSteps)
@@ -222,6 +223,17 @@ export default async function ServicePage({
                   ) : (
                     renderFallbackBody(service.text)
                   )}
+
+                  {serviceWhenNeededItems.length > 0 ? (
+                    <section className="serviceSectionCard">
+                      <h2>Когда нужна доработка 1С</h2>
+                      <ul className="serviceBulletList">
+                        {serviceWhenNeededItems.map((item: string, index: number) => (
+                          <li key={`${service._id}-when-needed-${index}`}>{item}</li>
+                        ))}
+                      </ul>
+                    </section>
+                  ) : null}
 
                   {Array.isArray(service.includedItems) && service.includedItems.length > 0 ? (
                     <section className="serviceSectionCard">
