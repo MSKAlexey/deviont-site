@@ -86,6 +86,31 @@ function getFilledStringItems(value: unknown) {
     : []
 }
 
+type ServiceFaqItem = {
+  question: string
+  answer: string
+}
+
+function getFilledFaqItems(value: unknown): ServiceFaqItem[] {
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  return value
+    .map((item) => {
+      if (!item || typeof item !== 'object') {
+        return null
+      }
+
+      const faqItem = item as {question?: unknown; answer?: unknown}
+      const question = typeof faqItem.question === 'string' ? faqItem.question.trim() : ''
+      const answer = typeof faqItem.answer === 'string' ? faqItem.answer.trim() : ''
+
+      return question && answer ? {question, answer} : null
+    })
+    .filter((item): item is ServiceFaqItem => Boolean(item))
+}
+
 export async function generateStaticParams() {
   const services = await client.fetch(servicesPageQuery)
 
@@ -144,6 +169,7 @@ export default async function ServicePage({
   const serviceExamples = getFilledStringItems(service.examples)
   const serviceConfigurations = getFilledStringItems(service.configurations)
   const serviceWorkflowSteps = getFilledStringItems(service.workflowSteps)
+  const serviceFaqItems = getFilledFaqItems(service.faqItems)
   const relatedServices = resolvedServices
     .filter((item) => {
       const href = getServiceHref(item)
@@ -247,6 +273,20 @@ export default async function ServicePage({
                       <ul className="serviceBulletList">
                         {service.taskItems.map((item: string, index: number) => (
                           <li key={`${service._id}-tasks-${index}`}>{item}</li>
+                        ))}
+                      </ul>
+                    </section>
+                  ) : null}
+
+                  {serviceFaqItems.length > 0 ? (
+                    <section className="serviceSectionCard">
+                      <h2>Частые вопросы</h2>
+                      <ul className="serviceBulletList">
+                        {serviceFaqItems.map((item, index) => (
+                          <li key={`${service._id}-faq-${index}`}>
+                            <strong>{item.question}</strong>
+                            <p>{item.answer}</p>
+                          </li>
                         ))}
                       </ul>
                     </section>

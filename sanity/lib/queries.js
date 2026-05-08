@@ -319,7 +319,11 @@ const servicePageProjection = `
   body,
   examples,
   configurations,
-  workflowSteps
+  workflowSteps,
+  faqItems[]{
+    question,
+    answer
+  }
 `
 
 export const articlesListQuery = `*[

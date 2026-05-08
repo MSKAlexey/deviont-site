@@ -141,6 +141,44 @@ export const service = defineType({
       'Список этапов работы, которые будут показаны на странице услуги.'
     ),
     createStringListField('taskItems', 'Какие задачи решаем'),
+    defineField({
+      name: 'faqItems',
+      title: 'Частые вопросы',
+      description: 'Список вопросов и ответов, которые будут показаны на странице услуги.',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'question',
+              title: 'Вопрос',
+              type: 'string',
+            }),
+            defineField({
+              name: 'answer',
+              title: 'Ответ',
+              type: 'text',
+            }),
+          ],
+          preview: {
+            select: {
+              title: 'question',
+              subtitle: 'answer',
+            },
+            prepare({title, subtitle}) {
+              return {
+                title: title || 'Вопрос без текста',
+                subtitle: truncateText(subtitle),
+              }
+            },
+          },
+        }),
+      ],
+      options: {
+        sortable: true,
+      },
+    }),
     defineImageField(),
     defineField({
       name: 'seoTitle',
