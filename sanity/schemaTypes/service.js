@@ -130,6 +130,11 @@ export const service = defineType({
       'Примеры доработок',
       'Список примеров работ, которые будут показаны на странице услуги.'
     ),
+    createStringListField(
+      'configurations',
+      'С какими конфигурациями работаем',
+      'Список конфигураций 1С, которые будут показаны на странице услуги.'
+    ),
     createStringListField('taskItems', 'Какие задачи решаем'),
     defineImageField(),
     defineField({

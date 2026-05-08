@@ -15,6 +15,8 @@ import {servicesPageQuery, siteSettingsQuery} from '../../../sanity/lib/queries'
 
 export const revalidate = 60
 
+const hiddenRelatedServiceHrefs = new Set(['/services/obnovlenie-1c'])
+
 function Footer({settings}: {settings: any}) {
   const year = new Date().getFullYear()
 
@@ -78,6 +80,12 @@ function renderFallbackBody(text?: string | null) {
   )
 }
 
+function getFilledStringItems(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    : []
+}
+
 export async function generateStaticParams() {
   const services = await client.fetch(servicesPageQuery)
 
@@ -133,11 +141,14 @@ export default async function ServicePage({
 
   const sections = normalizeConfiguredSections(settings)
   const summary = getServiceSummary(service)
-  const serviceExamples = Array.isArray(service.examples)
-    ? service.examples.filter((item: unknown) => typeof item === 'string' && item.trim().length > 0)
-    : []
+  const serviceExamples = getFilledStringItems(service.examples)
+  const serviceConfigurations = getFilledStringItems(service.configurations)
   const relatedServices = resolvedServices
-    .filter((item) => item._id !== service._id && getServiceHref(item))
+    .filter((item) => {
+      const href = getServiceHref(item)
+
+      return item._id !== service._id && href && !hiddenRelatedServiceHrefs.has(href)
+    })
     .slice(0, 5)
 
   return (
@@ -204,6 +215,23 @@ export default async function ServicePage({
                           <li key={`${service._id}-examples-${index}`}>{item}</li>
                         ))}
                       </ul>
+                    </section>
+                  ) : null}
+
+                  {serviceConfigurations.length > 0 ? (
+                    <section className="serviceSectionCard">
+                      <h2>С какими конфигурациями работаем</h2>
+                      <div className="articleBody">
+                        <p>
+                          Дорабатываем типовые и нетиповые базы 1С. Учитываем существующие
+                          настройки, доработки и особенности работы пользователей.
+                        </p>
+                        <ul className="serviceBulletList">
+                          {serviceConfigurations.map((item: string, index: number) => (
+                            <li key={`${service._id}-configurations-${index}`}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </section>
                   ) : null}
 
