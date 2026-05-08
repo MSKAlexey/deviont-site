@@ -143,6 +143,8 @@ export default async function ServicePage({
   const summary = getServiceSummary(service)
   const serviceExamples = getFilledStringItems(service.examples)
   const serviceConfigurations = getFilledStringItems(service.configurations)
+  const serviceConfigurationsIntro =
+    typeof service.configurationsIntro === 'string' ? service.configurationsIntro.trim() : ''
   const relatedServices = resolvedServices
     .filter((item) => {
       const href = getServiceHref(item)
@@ -222,10 +224,7 @@ export default async function ServicePage({
                     <section className="serviceSectionCard">
                       <h2>С какими конфигурациями работаем</h2>
                       <div className="articleBody">
-                        <p>
-                          Дорабатываем типовые и нетиповые базы 1С. Учитываем существующие
-                          настройки, доработки и особенности работы пользователей.
-                        </p>
+                        {serviceConfigurationsIntro ? <p>{serviceConfigurationsIntro}</p> : null}
                         <ul className="serviceBulletList">
                           {serviceConfigurations.map((item: string, index: number) => (
                             <li key={`${service._id}-configurations-${index}`}>{item}</li>

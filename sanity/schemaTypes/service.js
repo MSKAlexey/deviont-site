@@ -135,6 +135,13 @@ export const service = defineType({
       'С какими конфигурациями работаем',
       'Список конфигураций 1С, которые будут показаны на странице услуги.'
     ),
+    defineField({
+      name: 'configurationsIntro',
+      title: 'Описание блока конфигураций',
+      description: 'Текст под заголовком “С какими конфигурациями работаем”.',
+      type: 'text',
+      rows: 3,
+    }),
     createStringListField('taskItems', 'Какие задачи решаем'),
     defineImageField(),
     defineField({

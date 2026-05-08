@@ -318,7 +318,8 @@ const servicePageProjection = `
   ${serviceListProjection},
   body,
   examples,
-  configurations
+  configurations,
+  configurationsIntro
 `
 
 export const articlesListQuery = `*[
