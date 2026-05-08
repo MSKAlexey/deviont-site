@@ -145,6 +145,7 @@ export default async function ServicePage({
   const serviceConfigurations = getFilledStringItems(service.configurations)
   const serviceConfigurationsIntro =
     typeof service.configurationsIntro === 'string' ? service.configurationsIntro.trim() : ''
+  const serviceWorkflowSteps = getFilledStringItems(service.workflowSteps)
   const relatedServices = resolvedServices
     .filter((item) => {
       const href = getServiceHref(item)
@@ -231,6 +232,17 @@ export default async function ServicePage({
                           ))}
                         </ul>
                       </div>
+                    </section>
+                  ) : null}
+
+                  {serviceWorkflowSteps.length > 0 ? (
+                    <section className="serviceSectionCard">
+                      <h2>Как проходит доработка 1С</h2>
+                      <ul className="serviceBulletList">
+                        {serviceWorkflowSteps.map((item: string, index: number) => (
+                          <li key={`${service._id}-workflow-${index}`}>{item}</li>
+                        ))}
+                      </ul>
                     </section>
                   ) : null}
 

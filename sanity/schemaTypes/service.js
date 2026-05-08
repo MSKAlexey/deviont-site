@@ -142,6 +142,11 @@ export const service = defineType({
       type: 'text',
       rows: 3,
     }),
+    createStringListField(
+      'workflowSteps',
+      'Как проходит работа',
+      'Список этапов работы, которые будут показаны на странице услуги.'
+    ),
     createStringListField('taskItems', 'Какие задачи решаем'),
     defineImageField(),
     defineField({

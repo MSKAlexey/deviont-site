@@ -319,7 +319,8 @@ const servicePageProjection = `
   body,
   examples,
   configurations,
-  configurationsIntro
+  configurationsIntro,
+  workflowSteps
 `
 
 export const articlesListQuery = `*[
