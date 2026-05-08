@@ -15,7 +15,10 @@ import {servicesPageQuery, siteSettingsQuery} from '../../../sanity/lib/queries'
 
 export const revalidate = 60
 
-const hiddenRelatedServiceHrefs = new Set(['/services/obnovlenie-1c'])
+const hiddenRelatedServiceHrefs = new Set([
+  '/services/obnovlenie-1c',
+  '/services/edo-diadok-1c',
+])
 
 function Footer({settings}: {settings: any}) {
   const year = new Date().getFullYear()
@@ -226,9 +229,9 @@ export default async function ServicePage({
                   )}
 
                   {serviceWhenNeededItems.length > 0 ? (
-                    <section className="serviceSectionCard">
+                    <section className="serviceSectionCard serviceListSection">
                       <h2>Когда нужна доработка 1С</h2>
-                      <ul className="serviceBulletList">
+                      <ul className="serviceBulletList serviceGridList">
                         {serviceWhenNeededItems.map((item: string, index: number) => (
                           <li key={`${service._id}-when-needed-${index}`}>{item}</li>
                         ))}
@@ -237,9 +240,9 @@ export default async function ServicePage({
                   ) : null}
 
                   {Array.isArray(service.includedItems) && service.includedItems.length > 0 ? (
-                    <section className="serviceSectionCard">
+                    <section className="serviceSectionCard serviceListSection">
                       <h2>Что входит в услугу</h2>
-                      <ul className="serviceBulletList">
+                      <ul className="serviceBulletList serviceGridList">
                         {service.includedItems.map((item: string, index: number) => (
                           <li key={`${service._id}-included-${index}`}>{item}</li>
                         ))}
@@ -248,9 +251,9 @@ export default async function ServicePage({
                   ) : null}
 
                   {serviceExamples.length > 0 ? (
-                    <section className="serviceSectionCard">
+                    <section className="serviceSectionCard serviceListSection">
                       <h2>Примеры доработок 1С</h2>
-                      <ul className="serviceBulletList">
+                      <ul className="serviceBulletList serviceGridList">
                         {serviceExamples.map((item: string, index: number) => (
                           <li key={`${service._id}-examples-${index}`}>{item}</li>
                         ))}
@@ -259,9 +262,9 @@ export default async function ServicePage({
                   ) : null}
 
                   {serviceConfigurations.length > 0 ? (
-                    <section className="serviceSectionCard">
+                    <section className="serviceSectionCard serviceConfigSection">
                       <h2>С какими конфигурациями работаем</h2>
-                      <ul className="serviceBulletList">
+                      <ul className="serviceChipList">
                         {serviceConfigurations.map((item: string, index: number) => (
                           <li key={`${service._id}-configurations-${index}`}>{item}</li>
                         ))}
@@ -270,20 +273,20 @@ export default async function ServicePage({
                   ) : null}
 
                   {serviceWorkflowSteps.length > 0 ? (
-                    <section className="serviceSectionCard">
+                    <section className="serviceSectionCard serviceStepsSection">
                       <h2>Как проходит доработка 1С</h2>
-                      <ul className="serviceBulletList">
+                      <ol className="serviceStepList">
                         {serviceWorkflowSteps.map((item: string, index: number) => (
                           <li key={`${service._id}-workflow-${index}`}>{item}</li>
                         ))}
-                      </ul>
+                      </ol>
                     </section>
                   ) : null}
 
                   {Array.isArray(service.taskItems) && service.taskItems.length > 0 ? (
-                    <section className="serviceSectionCard">
+                    <section className="serviceSectionCard serviceListSection">
                       <h2>Какие задачи решаем</h2>
-                      <ul className="serviceBulletList">
+                      <ul className="serviceBulletList serviceGridList">
                         {service.taskItems.map((item: string, index: number) => (
                           <li key={`${service._id}-tasks-${index}`}>{item}</li>
                         ))}
@@ -292,9 +295,9 @@ export default async function ServicePage({
                   ) : null}
 
                   {serviceEstimateRequirements.length > 0 ? (
-                    <section className="serviceSectionCard">
+                    <section className="serviceSectionCard serviceListSection">
                       <h2>Что нужно для оценки доработки</h2>
-                      <ul className="serviceBulletList">
+                      <ul className="serviceBulletList serviceGridList">
                         {serviceEstimateRequirements.map((item: string, index: number) => (
                           <li key={`${service._id}-estimate-requirement-${index}`}>{item}</li>
                         ))}
@@ -303,23 +306,23 @@ export default async function ServicePage({
                   ) : null}
 
                   {serviceFaqItems.length > 0 ? (
-                    <section className="serviceSectionCard">
+                    <section className="serviceSectionCard serviceFaqSection">
                       <h2>Частые вопросы</h2>
-                      <ul className="serviceBulletList">
+                      <div className="serviceFaqList">
                         {serviceFaqItems.map((item, index) => (
-                          <li key={`${service._id}-faq-${index}`}>
-                            <strong>{item.question}</strong>
+                          <article className="serviceFaqItem" key={`${service._id}-faq-${index}`}>
+                            <h3>{item.question}</h3>
                             <p>{item.answer}</p>
-                          </li>
+                          </article>
                         ))}
-                      </ul>
+                      </div>
                     </section>
                   ) : null}
                 </div>
 
                 <aside className="servicePageAside">
                   {(service.priceText || service.durationText) && (
-                    <section className="serviceSectionCard">
+                    <section className="serviceSectionCard servicePriceCard">
                       <h2>Цена и условия</h2>
                       <div className="serviceConditionList">
                         {service.priceText ? (
