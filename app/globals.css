@@ -791,6 +791,10 @@ textarea {
   color: inherit;
 }
 
+.servicesCardsGrid {
+  align-items: stretch;
+}
+
 .articleCard {
   display: grid;
   gap: 16px;
@@ -824,10 +828,21 @@ textarea {
   background: #e8eef4;
 }
 
-.serviceCardMediaPlaceholder {
-  border: 1px dashed #d6e0ea;
-  background:
-    linear-gradient(180deg, rgba(237, 243, 248, 0.8) 0%, rgba(247, 250, 252, 0.9) 100%);
+.serviceCard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.servicesCardsGrid .serviceCardMedia {
+  flex: 0 0 auto;
+  aspect-ratio: 4 / 3;
+  background: #f8fbfd;
+}
+
+.servicesCardsGrid .serviceCardImage {
+  object-fit: contain;
 }
 
 .articleCardImage,
@@ -846,9 +861,11 @@ textarea {
 }
 
 .serviceCardBody {
-  display: grid;
-  gap: 12px;
-  align-content: start;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
 }
 
 .articleCardTitle {
@@ -861,6 +878,10 @@ textarea {
   margin: 0;
   font-size: 1.2rem;
   line-height: 1.32;
+}
+
+.servicesCardsGrid .serviceCardTitle {
+  min-height: 0;
 }
 
 .articleCardExcerpt,
@@ -876,6 +897,10 @@ textarea {
   line-height: 1.65;
 }
 
+.servicesCardsGrid .serviceCardExcerpt {
+  min-height: calc(1.65em * 3);
+}
+
 .articleCardMore {
   color: var(--accent);
   font-size: 0.95rem;
@@ -883,6 +908,7 @@ textarea {
 }
 
 .serviceCardMore {
+  margin-top: auto;
   color: var(--accent);
   font-size: 0.95rem;
   font-weight: 600;
@@ -900,6 +926,11 @@ textarea {
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+}
+
+.servicesCardsGrid .serviceMeta {
+  min-height: 38px;
+  align-items: flex-start;
 }
 
 .articleMetaItem {
@@ -970,6 +1001,15 @@ textarea {
   margin-bottom: 24px;
   border-radius: 22px;
   background: #e8eef4;
+}
+
+.servicePageMedia {
+  aspect-ratio: var(--image-aspect-ratio, 4 / 3);
+  background: #f8fbfd;
+}
+
+.servicePageImage {
+  object-fit: contain;
 }
 
 .serviceContainer {
@@ -1834,6 +1874,16 @@ textarea {
   .sectionCardsGridFour,
   .workflowGrid {
     grid-template-columns: 1fr;
+  }
+
+  .servicesCardsGrid {
+    grid-auto-rows: auto;
+  }
+
+  .servicesCardsGrid .serviceCardTitle,
+  .servicesCardsGrid .serviceCardExcerpt,
+  .servicesCardsGrid .serviceMeta {
+    min-height: 0;
   }
 
   .nav {
