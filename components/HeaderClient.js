@@ -1,5 +1,6 @@
 'use client'
 
+import {useState} from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {usePathname} from 'next/navigation'
@@ -125,6 +126,7 @@ function LogoLink({settings, companyName, subtitle}) {
 
 export default function HeaderClient({settings, sections}) {
   const pathname = usePathname()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const sectionNavigationItems = buildNavigationItems(sections).map((item) => ({
     ...item,
     href: pathname === '/' ? item.href : `/${item.href}`,
@@ -145,9 +147,22 @@ export default function HeaderClient({settings, sections}) {
           subtitle={settings?.subtitle || 'интегратор 1С'}
         />
 
-        <nav className="nav">
+        <button
+          className="menuToggle"
+          type="button"
+          aria-controls="site-navigation"
+          aria-expanded={isMenuOpen}
+          aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
+          onClick={() => setIsMenuOpen((current) => !current)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
+        <nav id="site-navigation" className={`nav${isMenuOpen ? ' navOpen' : ''}`}>
           {navigationItems.map((item) => (
-            <a key={item.href} href={item.href}>
+            <a key={item.href} href={item.href} onClick={() => setIsMenuOpen(false)}>
               {item.title}
             </a>
           ))}

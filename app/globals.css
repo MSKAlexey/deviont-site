@@ -114,6 +114,10 @@ textarea {
   white-space: nowrap;
 }
 
+.menuToggle {
+  display: none;
+}
+
 .hero {
   padding: 48px 0 28px;
 }
@@ -1557,13 +1561,91 @@ textarea {
 
 @media (max-width: 1024px) {
   .headerInner {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
     justify-items: start;
-    padding: 16px 0;
+    gap: 12px;
+    min-height: 0;
+    padding: 12px 0;
+  }
+
+  .brand {
+    grid-column: 1;
+    order: 1;
+  }
+
+  .brand > div {
+    min-width: 0;
+  }
+
+  .menuToggle {
+    grid-column: 2;
+    order: 1;
+    display: inline-grid;
+    place-items: center;
+    align-self: start;
+    width: 44px;
+    height: 44px;
+    margin-top: 8px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.86);
+    color: var(--accent);
+    cursor: pointer;
+  }
+
+  .menuToggle span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+  }
+
+  .menuToggle span + span {
+    margin-top: 4px;
   }
 
   .nav {
+    grid-column: 1 / -1;
+    order: 3;
+    display: none;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+  }
+
+  .navOpen {
+    display: grid;
     justify-content: flex-start;
+    gap: 4px;
+  }
+
+  .nav a {
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 12px;
+    color: var(--text);
+    line-height: 1.35;
+  }
+
+  .nav a:hover {
+    background: var(--accent-soft);
+  }
+
+  .phone {
+    grid-column: 1 / -1;
+    order: 2;
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid rgba(35, 72, 103, 0.14);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--text);
   }
 
   .heroShell {
@@ -1700,7 +1782,7 @@ textarea {
   }
 
   .nav {
-    gap: 12px 16px;
+    gap: 4px;
   }
 
   .phone {
