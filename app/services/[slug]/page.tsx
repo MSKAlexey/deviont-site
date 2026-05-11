@@ -231,7 +231,7 @@ export default async function ServicePage({
                   {serviceWhenNeededItems.length > 0 ? (
                     <section className="serviceSectionCard serviceListSection">
                       <h2>Когда нужна доработка 1С</h2>
-                      <ul className="serviceBulletList serviceGridList">
+                      <ul className="serviceBulletList serviceLineList">
                         {serviceWhenNeededItems.map((item: string, index: number) => (
                           <li key={`${service._id}-when-needed-${index}`}>{item}</li>
                         ))}
@@ -297,7 +297,7 @@ export default async function ServicePage({
                   {serviceEstimateRequirements.length > 0 ? (
                     <section className="serviceSectionCard serviceListSection">
                       <h2>Что нужно для оценки доработки</h2>
-                      <ul className="serviceBulletList serviceGridList">
+                      <ul className="serviceBulletList serviceLineList">
                         {serviceEstimateRequirements.map((item: string, index: number) => (
                           <li key={`${service._id}-estimate-requirement-${index}`}>{item}</li>
                         ))}

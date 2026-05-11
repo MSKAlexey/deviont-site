@@ -1077,6 +1077,35 @@ textarea {
   box-shadow: 0 0 0 4px rgba(35, 72, 103, 0.08);
 }
 
+.serviceLineList {
+  gap: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.serviceLineList li {
+  position: relative;
+  min-height: 48px;
+  padding: 13px 0 13px 30px;
+  border-top: 1px solid #dce6ee;
+}
+
+.serviceLineList li:first-child {
+  border-top: 0;
+}
+
+.serviceLineList li::before {
+  content: '';
+  position: absolute;
+  top: 23px;
+  left: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(35, 72, 103, 0.08);
+}
+
 .serviceConfigSection {
   background: #fbfcfd;
 }
