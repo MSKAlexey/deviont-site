@@ -1,7 +1,8 @@
 'use client'
 
-import {useState} from 'react'
+import {useCallback, useState} from 'react'
 import type {FormEvent} from 'react'
+import YandexSmartCaptcha from './YandexSmartCaptcha'
 
 const initialCaptcha = {
   left: 4,
@@ -9,8 +10,11 @@ const initialCaptcha = {
   answer: 11,
 }
 
+type CaptchaMode = 'none' | 'math' | 'smart'
+
 type ContactFormProps = {
   buttonText?: string
+  captchaMode?: CaptchaMode
   className?: string
   id?: string
   showCaptcha?: boolean
@@ -19,8 +23,13 @@ type ContactFormProps = {
   commentPlaceholder?: string
 }
 
+const captchaErrorMessage = 'Подтвердите, что вы не робот.'
+const genericErrorMessage = 'Проверьте поля формы и попробуйте еще раз.'
+const successMessage = 'Спасибо, заявка отправлена. Мы свяжемся с вами.'
+
 export default function ContactForm({
   buttonText = 'Оставить заявку',
+  captchaMode: providedCaptchaMode = 'none',
   className = 'contactForm',
   id,
   showCaptcha = false,
@@ -28,28 +37,109 @@ export default function ContactForm({
   commentLabel = 'Комментарий',
   commentPlaceholder = 'Комментарий',
 }: ContactFormProps) {
+  const captchaMode = showCaptcha ? 'math' : providedCaptchaMode
   const [captchaValue, setCaptchaValue] = useState('')
+  const [smartCaptchaToken, setSmartCaptchaToken] = useState('')
+  const [smartCaptchaResetKey, setSmartCaptchaResetKey] = useState(0)
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [statusMessage, setStatusMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const normalizedCaptchaValue = captchaValue.trim()
   const captchaNumber = Number(normalizedCaptchaValue)
   const hasCaptchaValue = normalizedCaptchaValue.length > 0
-  const isCaptchaValid =
-    !showCaptcha ||
+  const isMathCaptchaValid =
+    captchaMode !== 'math' ||
     (hasCaptchaValue && Number.isFinite(captchaNumber) && captchaNumber === initialCaptcha.answer)
+  const siteKey = process.env.NEXT_PUBLIC_YANDEX_SMARTCAPTCHA_SITE_KEY || ''
+  const isSmartCaptchaRequired =
+    captchaMode === 'smart' && (Boolean(siteKey) || process.env.NODE_ENV === 'production')
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    const phone = String(formData.get('phone') || '').trim()
+  const resetSmartCaptcha = useCallback(() => {
+    setSmartCaptchaToken('')
+    setSmartCaptchaResetKey((value) => value + 1)
+  }, [])
 
-    if (!phone || !isCaptchaValid) {
-      setStatus('error')
+  const handleSmartCaptchaToken = useCallback((token: string) => {
+    setSmartCaptchaToken(token)
+    setStatus('idle')
+    setStatusMessage('')
+  }, [])
+
+  function showError(message: string) {
+    setStatus('error')
+    setStatusMessage(message)
+  }
+
+  function showSuccess() {
+    setStatus('success')
+    setStatusMessage(successMessage)
+  }
+
+  async function submitSmartCaptchaForm(form: HTMLFormElement, formData: FormData) {
+    if (isSmartCaptchaRequired && !smartCaptchaToken) {
+      showError(captchaErrorMessage)
       return
     }
 
-    event.currentTarget.reset()
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: String(formData.get('name') || '').trim(),
+          phone: String(formData.get('phone') || '').trim(),
+          comment: String(formData.get('comment') || '').trim(),
+          smartCaptchaToken,
+        }),
+      })
+      const result = await response.json().catch(() => null)
+
+      if (!response.ok || !result?.ok) {
+        showError(result?.error || genericErrorMessage)
+        resetSmartCaptcha()
+        return
+      }
+
+      form.reset()
+      resetSmartCaptcha()
+      showSuccess()
+    } catch (error) {
+      console.error(error)
+      showError(genericErrorMessage)
+      resetSmartCaptcha()
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const form = event.currentTarget
+    const formData = new FormData(form)
+    const phone = String(formData.get('phone') || '').trim()
+
+    if (!phone) {
+      showError(genericErrorMessage)
+      return
+    }
+
+    if (!isMathCaptchaValid) {
+      showError(genericErrorMessage)
+      return
+    }
+
+    if (captchaMode === 'smart') {
+      await submitSmartCaptchaForm(form, formData)
+      return
+    }
+
+    form.reset()
     setCaptchaValue('')
-    setStatus('success')
+    showSuccess()
   }
 
   return (
@@ -60,6 +150,7 @@ export default function ContactForm({
       onChange={() => {
         if (status !== 'idle') {
           setStatus('idle')
+          setStatusMessage('')
         }
       }}
     >
@@ -78,7 +169,7 @@ export default function ContactForm({
         <textarea name="comment" rows={5} placeholder={commentPlaceholder} />
       </label>
 
-      {showCaptcha ? (
+      {captchaMode === 'math' ? (
         <>
           <label className="formField captchaField">
             <span>
@@ -94,25 +185,40 @@ export default function ContactForm({
               onChange={(event) => {
                 setCaptchaValue(event.target.value)
                 setStatus('idle')
+                setStatusMessage('')
               }}
-              aria-invalid={hasCaptchaValue && !isCaptchaValid}
+              aria-invalid={hasCaptchaValue && !isMathCaptchaValid}
             />
           </label>
-          {hasCaptchaValue && !isCaptchaValid ? (
+          {hasCaptchaValue && !isMathCaptchaValid ? (
             <p className="formHint formHintError">Ответ не совпадает</p>
           ) : null}
         </>
       ) : null}
 
-      {status === 'success' ? (
-        <p className="formHint formHintSuccess">Спасибо, заявка отправлена. Мы свяжемся с вами.</p>
-      ) : null}
-      {status === 'error' ? (
-        <p className="formHint formHintError">Проверьте поля формы и попробуйте еще раз.</p>
+      {captchaMode === 'smart' ? (
+        <div className="smartCaptchaField">
+          <YandexSmartCaptcha
+            onTokenChange={handleSmartCaptchaToken}
+            resetKey={smartCaptchaResetKey}
+          />
+          <input type="hidden" name="smartCaptchaToken" value={smartCaptchaToken} />
+        </div>
       ) : null}
 
-      <button type="submit" className={submitClassName} disabled={!isCaptchaValid}>
-        {buttonText}
+      {status === 'success' ? (
+        <p className="formHint formHintSuccess">{statusMessage || successMessage}</p>
+      ) : null}
+      {status === 'error' ? (
+        <p className="formHint formHintError">{statusMessage || genericErrorMessage}</p>
+      ) : null}
+
+      <button
+        type="submit"
+        className={submitClassName}
+        disabled={isSubmitting || (captchaMode === 'math' && !isMathCaptchaValid)}
+      >
+        {isSubmitting ? 'Отправляем...' : buttonText}
       </button>
     </form>
   )

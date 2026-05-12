@@ -91,6 +91,7 @@ export default function ContactModalProvider({children}: ContactModalProviderPro
               id="contact-modal-form"
               className="contactForm contactModalForm"
               buttonText="Отправить заявку"
+              captchaMode="smart"
               commentLabel="Комментарий / описание задачи"
               commentPlaceholder="Комментарий / описание задачи"
             />
