@@ -126,13 +126,13 @@ export const service = defineType({
     }),
     createStringListField(
       'whenNeededItems',
-      'Когда нужна доработка 1С',
-      'Список ситуаций, когда клиенту может понадобиться доработка 1С.'
+      'Когда нужна услуга',
+      'Список ситуаций, когда клиенту может понадобиться эта услуга.'
     ),
     createStringListField('includedItems', 'Что входит в услугу'),
     createStringListField(
       'examples',
-      'Примеры доработок',
+      'Примеры работ',
       'Список примеров работ, которые будут показаны на странице услуги.'
     ),
     createStringListField(
@@ -148,8 +148,8 @@ export const service = defineType({
     createStringListField('taskItems', 'Какие задачи решаем'),
     createStringListField(
       'estimateRequirements',
-      'Что нужно для оценки доработки',
-      'Список данных, которые нужны для оценки задачи по доработке 1С.'
+      'Что нужно для оценки задачи',
+      'Список данных, которые нужны для оценки задачи по этой услуге.'
     ),
     defineField({
       name: 'faqItems',
