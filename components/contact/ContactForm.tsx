@@ -1,21 +1,21 @@
 'use client'
 
-import {useCallback, useState} from 'react'
+import {useState} from 'react'
 import type {FormEvent} from 'react'
-import YandexSmartCaptcha from './YandexSmartCaptcha'
 
-const initialCaptcha = {
-  left: 4,
-  right: 7,
-  answer: 11,
+type CaptchaMode = 'none' | 'math'
+
+type MathCaptcha = {
+  left: number
+  right: number
+  answer: number
 }
-
-type CaptchaMode = 'none' | 'math' | 'smart'
 
 type ContactFormProps = {
   buttonText?: string
   captchaMode?: CaptchaMode
   className?: string
+  generateCaptchaOnMount?: boolean
   id?: string
   showCaptcha?: boolean
   submitClassName?: string
@@ -23,14 +23,31 @@ type ContactFormProps = {
   commentPlaceholder?: string
 }
 
-const captchaErrorMessage = 'Подтвердите, что вы не робот.'
+const captchaErrorMessage = 'Проверьте ответ на проверочный вопрос.'
 const genericErrorMessage = 'Проверьте поля формы и попробуйте еще раз.'
 const successMessage = 'Спасибо, заявка отправлена. Мы свяжемся с вами.'
+const initialMathCaptcha = {
+  left: 4,
+  right: 7,
+  answer: 11,
+}
+
+function createMathCaptcha(): MathCaptcha {
+  const left = Math.floor(Math.random() * 7) + 2
+  const right = Math.floor(Math.random() * 7) + 2
+
+  return {
+    left,
+    right,
+    answer: left + right,
+  }
+}
 
 export default function ContactForm({
   buttonText = 'Оставить заявку',
   captchaMode: providedCaptchaMode = 'none',
   className = 'contactForm',
+  generateCaptchaOnMount = false,
   id,
   showCaptcha = false,
   submitClassName = 'btnPrimary formSubmit',
@@ -38,32 +55,23 @@ export default function ContactForm({
   commentPlaceholder = 'Комментарий',
 }: ContactFormProps) {
   const captchaMode = showCaptcha ? 'math' : providedCaptchaMode
+  const [captcha, setCaptcha] = useState(() =>
+    generateCaptchaOnMount ? createMathCaptcha() : initialMathCaptcha
+  )
   const [captchaValue, setCaptchaValue] = useState('')
-  const [smartCaptchaToken, setSmartCaptchaToken] = useState('')
-  const [smartCaptchaResetKey, setSmartCaptchaResetKey] = useState(0)
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [statusMessage, setStatusMessage] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const normalizedCaptchaValue = captchaValue.trim()
   const captchaNumber = Number(normalizedCaptchaValue)
   const hasCaptchaValue = normalizedCaptchaValue.length > 0
-  const isMathCaptchaValid =
+  const isCaptchaValid =
     captchaMode !== 'math' ||
-    (hasCaptchaValue && Number.isFinite(captchaNumber) && captchaNumber === initialCaptcha.answer)
-  const siteKey = process.env.NEXT_PUBLIC_YANDEX_SMARTCAPTCHA_SITE_KEY || ''
-  const isSmartCaptchaRequired =
-    captchaMode === 'smart' && (Boolean(siteKey) || process.env.NODE_ENV === 'production')
+    (hasCaptchaValue && Number.isFinite(captchaNumber) && captchaNumber === captcha.answer)
 
-  const resetSmartCaptcha = useCallback(() => {
-    setSmartCaptchaToken('')
-    setSmartCaptchaResetKey((value) => value + 1)
-  }, [])
-
-  const handleSmartCaptchaToken = useCallback((token: string) => {
-    setSmartCaptchaToken(token)
-    setStatus('idle')
-    setStatusMessage('')
-  }, [])
+  function resetCaptcha() {
+    setCaptcha(createMathCaptcha())
+    setCaptchaValue('')
+  }
 
   function showError(message: string) {
     setStatus('error')
@@ -75,48 +83,7 @@ export default function ContactForm({
     setStatusMessage(successMessage)
   }
 
-  async function submitSmartCaptchaForm(form: HTMLFormElement, formData: FormData) {
-    if (isSmartCaptchaRequired && !smartCaptchaToken) {
-      showError(captchaErrorMessage)
-      return
-    }
-
-    setIsSubmitting(true)
-
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: String(formData.get('name') || '').trim(),
-          phone: String(formData.get('phone') || '').trim(),
-          comment: String(formData.get('comment') || '').trim(),
-          smartCaptchaToken,
-        }),
-      })
-      const result = await response.json().catch(() => null)
-
-      if (!response.ok || !result?.ok) {
-        showError(result?.error || genericErrorMessage)
-        resetSmartCaptcha()
-        return
-      }
-
-      form.reset()
-      resetSmartCaptcha()
-      showSuccess()
-    } catch (error) {
-      console.error(error)
-      showError(genericErrorMessage)
-      resetSmartCaptcha()
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
@@ -127,18 +94,13 @@ export default function ContactForm({
       return
     }
 
-    if (!isMathCaptchaValid) {
-      showError(genericErrorMessage)
-      return
-    }
-
-    if (captchaMode === 'smart') {
-      await submitSmartCaptchaForm(form, formData)
+    if (!isCaptchaValid) {
+      showError(captchaErrorMessage)
       return
     }
 
     form.reset()
-    setCaptchaValue('')
+    resetCaptcha()
     showSuccess()
   }
 
@@ -172,9 +134,7 @@ export default function ContactForm({
       {captchaMode === 'math' ? (
         <>
           <label className="formField captchaField">
-            <span>
-              Проверка: {initialCaptcha.left} + {initialCaptcha.right} =
-            </span>
+            <span>Проверочный вопрос: сколько будет {captcha.left} + {captcha.right}?</span>
             <input
               type="text"
               name="captcha"
@@ -187,23 +147,13 @@ export default function ContactForm({
                 setStatus('idle')
                 setStatusMessage('')
               }}
-              aria-invalid={hasCaptchaValue && !isMathCaptchaValid}
+              aria-invalid={hasCaptchaValue && !isCaptchaValid}
             />
           </label>
-          {hasCaptchaValue && !isMathCaptchaValid ? (
-            <p className="formHint formHintError">Ответ не совпадает</p>
+          {hasCaptchaValue && !isCaptchaValid ? (
+            <p className="formHint formHintError">{captchaErrorMessage}</p>
           ) : null}
         </>
-      ) : null}
-
-      {captchaMode === 'smart' ? (
-        <div className="smartCaptchaField">
-          <YandexSmartCaptcha
-            onTokenChange={handleSmartCaptchaToken}
-            resetKey={smartCaptchaResetKey}
-          />
-          <input type="hidden" name="smartCaptchaToken" value={smartCaptchaToken} />
-        </div>
       ) : null}
 
       {status === 'success' ? (
@@ -213,12 +163,8 @@ export default function ContactForm({
         <p className="formHint formHintError">{statusMessage || genericErrorMessage}</p>
       ) : null}
 
-      <button
-        type="submit"
-        className={submitClassName}
-        disabled={isSubmitting || (captchaMode === 'math' && !isMathCaptchaValid)}
-      >
-        {isSubmitting ? 'Отправляем...' : buttonText}
+      <button type="submit" className={submitClassName}>
+        {buttonText}
       </button>
     </form>
   )

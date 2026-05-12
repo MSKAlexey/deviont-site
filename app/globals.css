@@ -1594,15 +1594,6 @@ textarea {
   box-shadow: 0 0 0 4px rgba(199, 73, 73, 0.08);
 }
 
-.smartCaptchaField {
-  display: grid;
-  gap: 8px;
-}
-
-.smartCaptchaBox {
-  min-height: 100px;
-}
-
 .formHint {
   margin: -6px 0 0;
   font-size: 0.9rem;
