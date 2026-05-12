@@ -1,4 +1,5 @@
 import './globals.css'
+import ContactModalProvider from '../components/contact/ContactModal'
 import {client} from '../sanity/lib/client'
 import {urlFor} from '../sanity/lib/image'
 
@@ -53,7 +54,9 @@ export async function generateMetadata() {
 export default function RootLayout({children}) {
   return (
     <html lang="ru">
-      <body>{children}</body>
+      <body>
+        <ContactModalProvider>{children}</ContactModalProvider>
+      </body>
     </html>
   )
 }

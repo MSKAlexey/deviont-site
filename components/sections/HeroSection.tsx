@@ -1,5 +1,6 @@
 import {Fragment} from 'react'
 
+import ContactModalTrigger from '../contact/ContactModalTrigger'
 import HeroPreButton from './HeroPreButton'
 import HeroRichText, {
   getHeroPlainText,
@@ -110,7 +111,7 @@ export default function HeroSection({settings, block, sectionId = 'hero'}) {
             />
 
             <div className="heroActions">
-              <a className="btnPrimary" href="#contact-form">
+              <ContactModalTrigger className="btnPrimary">
                 {hasFormattedButtonText ? (
                   <HeroRichText
                     value={heroButtonPrimaryFormatted}
@@ -123,7 +124,7 @@ export default function HeroSection({settings, block, sectionId = 'hero'}) {
                     {renderHeroMultilineText(heroButtonPrimary, 'hero-button')}
                   </span>
                 )}
-              </a>
+              </ContactModalTrigger>
             </div>
           </div>
 

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import {notFound} from 'next/navigation'
 import HeaderClient from '../../../components/HeaderClient'
 import ArticleBody from '../../../components/articles/ArticleBody'
+import ContactModalTrigger from '../../../components/contact/ContactModalTrigger'
 import SectionCardImage from '../../../components/sections/SectionCardImage'
 import {
   findServiceBySlug,
@@ -348,9 +349,9 @@ export default async function ServicePage({
                       Расскажите, что нужно настроить или доработать, и мы предложим
                       подходящий вариант реализации.
                     </p>
-                    <Link href="/#contacts" className="btnPrimary">
+                    <ContactModalTrigger className="btnPrimary">
                       Обсудить задачу
-                    </Link>
+                    </ContactModalTrigger>
                   </section>
                 </aside>
               </div>
