@@ -837,11 +837,15 @@ textarea {
 
 .servicesCardsGrid .serviceCardMedia {
   flex: 0 0 auto;
-  aspect-ratio: 4 / 3;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  padding: 12px;
   background: #f8fbfd;
 }
 
 .servicesCardsGrid .serviceCardImage {
+  object-position: center;
   object-fit: contain;
 }
 
@@ -1004,11 +1008,18 @@ textarea {
 }
 
 .servicePageMedia {
-  aspect-ratio: var(--image-aspect-ratio, 4 / 3);
+  display: grid;
+  place-items: center;
+  width: min(100%, 680px);
+  max-height: 360px;
+  aspect-ratio: 16 / 9;
+  margin-inline: auto;
+  padding: clamp(14px, 2vw, 22px);
   background: #f8fbfd;
 }
 
 .servicePageImage {
+  object-position: center;
   object-fit: contain;
 }
 
