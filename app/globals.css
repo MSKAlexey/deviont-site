@@ -791,6 +791,10 @@ textarea {
   color: inherit;
 }
 
+.servicesCardsGrid {
+  align-items: stretch;
+}
+
 .articleCard {
   display: grid;
   gap: 16px;
@@ -824,10 +828,25 @@ textarea {
   background: #e8eef4;
 }
 
-.serviceCardMediaPlaceholder {
-  border: 1px dashed #d6e0ea;
-  background:
-    linear-gradient(180deg, rgba(237, 243, 248, 0.8) 0%, rgba(247, 250, 252, 0.9) 100%);
+.serviceCard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.servicesCardsGrid .serviceCardMedia {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  padding: 12px;
+  background: #f8fbfd;
+}
+
+.servicesCardsGrid .serviceCardImage {
+  object-position: center;
+  object-fit: contain;
 }
 
 .articleCardImage,
@@ -846,9 +865,11 @@ textarea {
 }
 
 .serviceCardBody {
-  display: grid;
-  gap: 12px;
-  align-content: start;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
 }
 
 .articleCardTitle {
@@ -861,6 +882,10 @@ textarea {
   margin: 0;
   font-size: 1.2rem;
   line-height: 1.32;
+}
+
+.servicesCardsGrid .serviceCardTitle {
+  min-height: 0;
 }
 
 .articleCardExcerpt,
@@ -876,6 +901,10 @@ textarea {
   line-height: 1.65;
 }
 
+.servicesCardsGrid .serviceCardExcerpt {
+  min-height: calc(1.65em * 3);
+}
+
 .articleCardMore {
   color: var(--accent);
   font-size: 0.95rem;
@@ -883,6 +912,7 @@ textarea {
 }
 
 .serviceCardMore {
+  margin-top: auto;
   color: var(--accent);
   font-size: 0.95rem;
   font-weight: 600;
@@ -900,6 +930,11 @@ textarea {
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+}
+
+.servicesCardsGrid .serviceMeta {
+  min-height: 38px;
+  align-items: flex-start;
 }
 
 .articleMetaItem {
@@ -970,6 +1005,22 @@ textarea {
   margin-bottom: 24px;
   border-radius: 22px;
   background: #e8eef4;
+}
+
+.servicePageMedia {
+  display: grid;
+  place-items: center;
+  width: min(100%, 680px);
+  max-height: 360px;
+  aspect-ratio: 16 / 9;
+  margin-inline: auto;
+  padding: clamp(14px, 2vw, 22px);
+  background: #f8fbfd;
+}
+
+.servicePageImage {
+  object-position: center;
+  object-fit: contain;
 }
 
 .serviceContainer {
@@ -1070,6 +1121,35 @@ textarea {
   position: absolute;
   top: 22px;
   left: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(35, 72, 103, 0.08);
+}
+
+.serviceLineList {
+  gap: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.serviceLineList li {
+  position: relative;
+  min-height: 48px;
+  padding: 13px 0 13px 30px;
+  border-top: 1px solid #dce6ee;
+}
+
+.serviceLineList li:first-child {
+  border-top: 0;
+}
+
+.serviceLineList li::before {
+  content: '';
+  position: absolute;
+  top: 23px;
+  left: 4px;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -1805,6 +1885,16 @@ textarea {
   .sectionCardsGridFour,
   .workflowGrid {
     grid-template-columns: 1fr;
+  }
+
+  .servicesCardsGrid {
+    grid-auto-rows: auto;
+  }
+
+  .servicesCardsGrid .serviceCardTitle,
+  .servicesCardsGrid .serviceCardExcerpt,
+  .servicesCardsGrid .serviceMeta {
+    min-height: 0;
   }
 
   .nav {

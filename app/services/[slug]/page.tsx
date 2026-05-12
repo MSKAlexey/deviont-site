@@ -209,12 +209,13 @@ export default async function ServicePage({
                 <SectionCardImage
                   image={service.image}
                   alt={service.title}
-                  width={1440}
-                  height={840}
-                  fit="crop"
-                  sizes="(max-width: 720px) calc(100vw - 72px), (max-width: 1180px) calc(100vw - 88px), 1092px"
-                  wrapperClassName="articlePageMedia"
-                  imageClassName="articlePageImage"
+                  width={960}
+                  height={540}
+                  fit="max"
+                  sizes="(max-width: 720px) calc(100vw - 100px), (max-width: 1180px) 68vw, 680px"
+                  wrapperClassName="articlePageMedia servicePageMedia"
+                  imageClassName="articlePageImage servicePageImage"
+                  ignoreCrop
                 />
               ) : null}
 
@@ -231,7 +232,7 @@ export default async function ServicePage({
                   {serviceWhenNeededItems.length > 0 ? (
                     <section className="serviceSectionCard serviceListSection">
                       <h2>Когда нужна доработка 1С</h2>
-                      <ul className="serviceBulletList serviceGridList">
+                      <ul className="serviceBulletList serviceLineList">
                         {serviceWhenNeededItems.map((item: string, index: number) => (
                           <li key={`${service._id}-when-needed-${index}`}>{item}</li>
                         ))}
@@ -297,7 +298,7 @@ export default async function ServicePage({
                   {serviceEstimateRequirements.length > 0 ? (
                     <section className="serviceSectionCard serviceListSection">
                       <h2>Что нужно для оценки доработки</h2>
-                      <ul className="serviceBulletList serviceGridList">
+                      <ul className="serviceBulletList serviceLineList">
                         {serviceEstimateRequirements.map((item: string, index: number) => (
                           <li key={`${service._id}-estimate-requirement-${index}`}>{item}</li>
                         ))}

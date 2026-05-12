@@ -1,8 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 
+import type {CSSProperties} from 'react'
 import {urlFor} from '../../sanity/lib/image'
 
 const responsiveImageWidths = [160, 240, 320, 480, 640, 720, 960, 1200, 1440]
+
+type ImageWrapperStyle = CSSProperties & {
+  '--image-aspect-ratio'?: string
+}
 
 function getImageAssetRef(image) {
   const asset = image?.asset
@@ -37,6 +42,14 @@ function getDisplayHeight(image, width, height) {
   return Math.round((width / dimensions.width) * dimensions.height)
 }
 
+function getAspectRatioValue(image) {
+  const dimensions = getOriginalDimensions(image)
+
+  return dimensions?.width && dimensions?.height
+    ? `${dimensions.width} / ${dimensions.height}`
+    : undefined
+}
+
 function getCandidateWidths(width) {
   return Array.from(
     new Set([
@@ -46,10 +59,16 @@ function getCandidateWidths(width) {
   )
 }
 
-function getImageUrl(image, width, height, fit) {
-  let imageBuilder = urlFor(image).width(width)
+function getImageSource(image, ignoreCrop) {
+  const assetRef = getImageAssetRef(image)
 
-  if (height) {
+  return ignoreCrop && assetRef ? assetRef : image
+}
+
+function getImageUrl(image, width, height, fit, ignoreCrop) {
+  let imageBuilder = urlFor(getImageSource(image, ignoreCrop)).width(width)
+
+  if (height && !ignoreCrop) {
     imageBuilder = imageBuilder.height(height)
   }
 
@@ -71,17 +90,23 @@ export default function SectionCardImage({
   sizes = '100vw',
   loading = 'lazy',
   fetchPriority = undefined,
+  ignoreCrop = false,
 }) {
   if (!image?.asset) {
     return null
   }
 
-  const resolvedHeight = getDisplayHeight(image, width, height)
+  const resolvedHeight = getDisplayHeight(image, width, ignoreCrop ? undefined : height)
+  const imageAspectRatio = getAspectRatioValue(image)
+  const wrapperStyle: ImageWrapperStyle | undefined = imageAspectRatio
+    ? {'--image-aspect-ratio': imageAspectRatio}
+    : undefined
   const srcSet = getCandidateWidths(width)
     .map((candidateWidth) => {
-      const candidateHeight = height ? Math.round((candidateWidth / width) * height) : undefined
+      const candidateHeight =
+        height && !ignoreCrop ? Math.round((candidateWidth / width) * height) : undefined
 
-      return `${getImageUrl(image, candidateWidth, candidateHeight, fit)} ${candidateWidth}w`
+      return `${getImageUrl(image, candidateWidth, candidateHeight, fit, ignoreCrop)} ${candidateWidth}w`
     })
     .join(', ')
   const resolvedLoading = loading === 'eager' ? 'eager' : 'lazy'
@@ -91,9 +116,12 @@ export default function SectionCardImage({
       : undefined
 
   return (
-    <div className={wrapperClassName}>
+    <div
+      className={wrapperClassName}
+      style={wrapperStyle}
+    >
       <img
-        src={getImageUrl(image, width, height, fit)}
+        src={getImageUrl(image, width, height, fit, ignoreCrop)}
         srcSet={srcSet}
         sizes={sizes}
         alt={image.alt || alt || ''}

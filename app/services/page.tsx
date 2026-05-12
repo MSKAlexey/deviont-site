@@ -86,7 +86,7 @@ export default async function ServicesPage() {
             </header>
 
             {resolvedServices.length > 0 ? (
-              <div className="sectionCardsGrid sectionCardsGridThree">
+              <div className="sectionCardsGrid sectionCardsGridThree servicesCardsGrid">
                 {resolvedServices.map((service: any) => {
                   const summary = getServiceSummary(service)
                   const href = getServiceHref(service)
@@ -104,17 +104,13 @@ export default async function ServicesPage() {
                             alt={service.title}
                             width={720}
                             height={420}
-                            fit="crop"
+                            fit="max"
                             sizes="(max-width: 720px) calc(100vw - 72px), (max-width: 1180px) calc((100vw - 154px) / 2), 327px"
                             wrapperClassName="serviceCardMedia"
                             imageClassName="serviceCardImage"
+                            ignoreCrop
                           />
-                        ) : (
-                          <div
-                            aria-hidden="true"
-                            className="serviceCardMedia serviceCardMediaPlaceholder"
-                          />
-                        )}
+                        ) : null}
 
                         <div className="serviceCardBody">
                           <h2 className="serviceCardTitle">{service.title}</h2>
