@@ -131,8 +131,12 @@ export default function HeaderClient({settings, sections}) {
     ...item,
     href: pathname === '/' ? item.href : `/${item.href}`,
   }))
+  const servicesNavigationHref = pathname === '/' ? '#services' : '/#services'
   const navigationItems = [
-    servicesNavigationItem,
+    {
+      ...servicesNavigationItem,
+      href: servicesNavigationHref,
+    },
     ...sectionNavigationItems,
     articlesNavigationItem,
   ]

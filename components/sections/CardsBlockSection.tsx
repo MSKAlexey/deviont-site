@@ -234,11 +234,19 @@ export default function CardsBlockSection({block, sectionId, services}) {
   ) : (
     renderHeroMultilineText(block.title, 'cards-block-title')
   )
+  const sectionTitleNode =
+    sectionId === 'services' ? (
+      <Link href="/services" className="sectionTitleLink">
+        {sectionTitle}
+      </Link>
+    ) : (
+      sectionTitle
+    )
 
   return (
     <section className="section" id={sectionId}>
       <div className="container">
-        <SectionHeading title={sectionTitle} />
+        <SectionHeading title={sectionTitleNode} />
 
         <div className="sectionCardsGrid sectionCardsGridThree">
           {block.items.map((item) => {
