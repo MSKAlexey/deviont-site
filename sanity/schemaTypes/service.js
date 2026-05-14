@@ -1,4 +1,6 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
+import ServiceDocumentInput from '../components/ServiceDocumentInput.js'
+import ServiceSectionTitleInput from '../components/ServiceSectionTitleInput.js'
 import {defineImageField} from './lib/defineImageField.js'
 
 function truncateText(value, maxLength = 90) {
@@ -81,6 +83,9 @@ export const service = defineType({
   name: 'service',
   title: 'Услуги 1С',
   type: 'document',
+  components: {
+    input: ServiceDocumentInput,
+  },
   fields: [
     defineField({
       name: 'title',
@@ -124,33 +129,97 @@ export const service = defineType({
       type: 'text',
       rows: 2,
     }),
+    defineField({
+      name: 'whenNeededTitle',
+      title: 'Заголовок на сайте',
+      description: 'Если оставить пустым, используется стандартный заголовок блока.',
+      type: 'string',
+      components: {input: ServiceSectionTitleInput},
+      options: {fallbackTitle: 'Когда нужна услуга'},
+    }),
     createStringListField(
       'whenNeededItems',
       'Когда нужна услуга',
       'Список ситуаций, когда клиенту может понадобиться эта услуга.'
     ),
+    defineField({
+      name: 'includedTitle',
+      title: 'Заголовок на сайте',
+      description: 'Если оставить пустым, используется стандартный заголовок блока.',
+      type: 'string',
+      components: {input: ServiceSectionTitleInput},
+      options: {fallbackTitle: 'Что входит в услугу'},
+    }),
     createStringListField('includedItems', 'Что входит в услугу'),
+    defineField({
+      name: 'examplesTitle',
+      title: 'Заголовок на сайте',
+      description: 'Если оставить пустым, используется стандартный заголовок блока.',
+      type: 'string',
+      components: {input: ServiceSectionTitleInput},
+      options: {fallbackTitle: 'Примеры работ'},
+    }),
     createStringListField(
       'examples',
       'Примеры работ',
       'Список примеров работ, которые будут показаны на странице услуги.'
     ),
+    defineField({
+      name: 'configurationsTitle',
+      title: 'Заголовок на сайте',
+      description: 'Если оставить пустым, используется стандартный заголовок блока.',
+      type: 'string',
+      components: {input: ServiceSectionTitleInput},
+      options: {fallbackTitle: 'С какими конфигурациями работаем'},
+    }),
     createStringListField(
       'configurations',
       'С какими конфигурациями работаем',
       'Список конфигураций 1С, которые будут показаны на странице услуги.'
     ),
+    defineField({
+      name: 'workflowTitle',
+      title: 'Заголовок на сайте',
+      description: 'Если оставить пустым, используется стандартный заголовок блока.',
+      type: 'string',
+      components: {input: ServiceSectionTitleInput},
+      options: {fallbackTitle: 'Как проходит работа'},
+    }),
     createStringListField(
       'workflowSteps',
       'Как проходит работа',
       'Список этапов работы, которые будут показаны на странице услуги.'
     ),
+    defineField({
+      name: 'tasksTitle',
+      title: 'Заголовок на сайте',
+      description: 'Если оставить пустым, используется стандартный заголовок блока.',
+      type: 'string',
+      components: {input: ServiceSectionTitleInput},
+      options: {fallbackTitle: 'Какие задачи решаем'},
+    }),
     createStringListField('taskItems', 'Какие задачи решаем'),
+    defineField({
+      name: 'estimateRequirementsTitle',
+      title: 'Заголовок на сайте',
+      description: 'Если оставить пустым, используется стандартный заголовок блока.',
+      type: 'string',
+      components: {input: ServiceSectionTitleInput},
+      options: {fallbackTitle: 'Что нужно для оценки задачи'},
+    }),
     createStringListField(
       'estimateRequirements',
       'Что нужно для оценки задачи',
       'Список данных, которые нужны для оценки задачи по этой услуге.'
     ),
+    defineField({
+      name: 'faqTitle',
+      title: 'Заголовок на сайте',
+      description: 'Если оставить пустым, используется стандартный заголовок блока.',
+      type: 'string',
+      components: {input: ServiceSectionTitleInput},
+      options: {fallbackTitle: 'Частые вопросы'},
+    }),
     defineField({
       name: 'faqItems',
       title: 'Частые вопросы',

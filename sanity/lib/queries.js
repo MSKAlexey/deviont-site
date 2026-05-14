@@ -317,11 +317,19 @@ const serviceListProjection = `
 const servicePageProjection = `
   ${serviceListProjection},
   body,
+  whenNeededTitle,
   whenNeededItems,
+  includedTitle,
+  examplesTitle,
   examples,
+  configurationsTitle,
   configurations,
+  workflowTitle,
   workflowSteps,
+  tasksTitle,
+  estimateRequirementsTitle,
   estimateRequirements,
+  faqTitle,
   faqItems[]{
     question,
     answer
