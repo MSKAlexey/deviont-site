@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import HeaderClient from '../../components/HeaderClient'
 import SectionCardImage from '../../components/sections/SectionCardImage'
-import {getServiceHref, getServiceSummary, sortServices} from '../../lib/services'
+import {getServiceHref, getServiceSummary, isPromotedService, sortServices} from '../../lib/services'
 import {client} from '../../sanity/lib/client'
 import {servicesListQuery, siteSettingsQuery} from '../../sanity/lib/queries'
 
@@ -67,7 +67,9 @@ export default async function ServicesPage() {
   ])
   const sections = normalizeConfiguredSections(settings)
   const resolvedServices = sortServices(
-    (Array.isArray(services) ? services : []).filter((service) => Boolean(getServiceHref(service)))
+    (Array.isArray(services) ? services : []).filter(
+      (service) => Boolean(getServiceHref(service)) && isPromotedService(service)
+    )
   )
 
   return (

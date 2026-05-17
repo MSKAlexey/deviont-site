@@ -9,17 +9,13 @@ import {
   getServiceCatalogEntry,
   getServiceHref,
   getServiceSummary,
+  isPromotedService,
   sortServices,
 } from '../../../lib/services'
 import {client} from '../../../sanity/lib/client'
 import {servicesPageQuery, siteSettingsQuery} from '../../../sanity/lib/queries'
 
 export const revalidate = 60
-
-const hiddenRelatedServiceHrefs = new Set([
-  '/services/obnovlenie-1c',
-  '/services/edo-diadok-1c',
-])
 
 function Footer({settings}: {settings: any}) {
   const year = new Date().getFullYear()
@@ -202,7 +198,7 @@ export default async function ServicePage({
     .filter((item) => {
       const href = getServiceHref(item)
 
-      return item._id !== service._id && href && !hiddenRelatedServiceHrefs.has(href)
+      return item._id !== service._id && href && isPromotedService(item)
     })
     .slice(0, 5)
 
