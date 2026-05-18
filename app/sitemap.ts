@@ -11,6 +11,7 @@ const routes = [
   {path: '/services/nastroyka-1c', changeFrequency: 'weekly', priority: 0.8},
   {path: '/services/integraciya-1c-s-saytom', changeFrequency: 'weekly', priority: 0.8},
   {path: '/services/markirovka-1c', changeFrequency: 'weekly', priority: 0.8},
+  {path: '/services/otchety-1c', changeFrequency: 'weekly', priority: 0.8},
   {path: '/articles', changeFrequency: 'weekly', priority: 0.7},
 ] satisfies Array<{
   path: string

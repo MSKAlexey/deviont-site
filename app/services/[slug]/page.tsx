@@ -200,7 +200,6 @@ export default async function ServicePage({
 
       return item._id !== service._id && href && isPromotedService(item)
     })
-    .slice(0, 5)
 
   return (
     <>
