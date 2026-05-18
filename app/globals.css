@@ -281,6 +281,7 @@ textarea {
 
 .section {
   padding: 36px 0;
+  scroll-margin-top: 108px;
 }
 
 .sectionContact {
@@ -1730,6 +1731,10 @@ textarea {
 }
 
 @media (max-width: 1024px) {
+  .section {
+    scroll-margin-top: 116px;
+  }
+
   .headerInner {
     grid-template-columns: minmax(0, 1fr) auto;
     justify-items: start;
