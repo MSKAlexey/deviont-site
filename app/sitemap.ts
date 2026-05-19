@@ -1,4 +1,6 @@
 import type {MetadataRoute} from 'next'
+import {client} from '../sanity/lib/client'
+import {articlesSitemapQuery} from '../sanity/lib/queries'
 
 const siteUrl = 'https://deviont.ru'
 
@@ -19,13 +21,50 @@ const routes = [
   priority: number
 }>
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date()
+function getLastModified(value?: string | null) {
+  if (!value) {
+    return null
+  }
 
-  return routes.map((route) => ({
+  const date = new Date(value)
+
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const lastModified = new Date()
+  let articles: Array<{
+    slug?: string | null
+    updatedAt?: string | null
+    publishedAt?: string | null
+    _updatedAt?: string | null
+  }> = []
+
+  try {
+    articles = await client.fetch(articlesSitemapQuery)
+  } catch {
+    articles = []
+  }
+
+  const staticRoutes = routes.map((route) => ({
     url: `${siteUrl}${route.path}`,
     lastModified,
     changeFrequency: route.changeFrequency,
     priority: route.priority,
   }))
+
+  const articleRoutes = articles
+    .filter((article) => article?.slug)
+    .map((article) => ({
+      url: `${siteUrl}/articles/${article.slug}`,
+      lastModified:
+        getLastModified(article.updatedAt) ||
+        getLastModified(article.publishedAt) ||
+        getLastModified(article._updatedAt) ||
+        lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }))
+
+  return [...staticRoutes, ...articleRoutes]
 }

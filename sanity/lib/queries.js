@@ -276,21 +276,51 @@ export const siteSettingsQuery = `*[_type == "siteSettings" && _id == "siteSetti
 const articleListProjection = `
   _id,
   _createdAt,
+  _updatedAt,
   title,
   "slug": slug.current,
   excerpt,
+  "materialType": coalesce(materialType, "article"),
   publishedAt,
-  configVersion,
-  image{
-    ...,
-    alt,
-    asset
+  updatedAt,
+  oneCConfiguration,
+  oneCVersion,
+  coverImage,
+  coverImageAlt,
+  seoTitle,
+  seoDescription,
+  "relatedService": relatedService->{
+    _id,
+    title,
+    "slug": slug.current,
+    isVisible
   }
 `
 
 const articlePageProjection = `
   ${articleListProjection},
-  body
+  body[]{
+    ...,
+    markDefs[]{
+      ...,
+      "article": select(
+        _type == "articleLink" => article->{
+          title,
+          "slug": slug.current
+        }
+      ),
+      "service": select(
+        _type == "serviceLink" => service->{
+          title,
+          "slug": slug.current,
+          isVisible
+        }
+      )
+    },
+    "asset": select(_type in ["articleImage", "image"] => asset, asset),
+    "alt": select(_type in ["articleImage", "image"] => alt, alt),
+    "caption": select(_type in ["articleImage", "image"] => caption, caption)
+  }
 `
 
 const serviceListProjection = `
@@ -339,8 +369,9 @@ const servicePageProjection = `
 export const articlesListQuery = `*[
   _type == "article" &&
   isVisible != false &&
-  defined(slug.current)
-] | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc){
+  defined(slug.current) &&
+  (!defined($type) || coalesce(materialType, "article") == $type)
+] | order(coalesce(updatedAt, publishedAt, _updatedAt, _createdAt) desc, _createdAt desc){
   ${articleListProjection}
 }`
 
@@ -350,6 +381,37 @@ export const articleBySlugQuery = `*[
   slug.current == $slug
 ][0]{
   ${articlePageProjection}
+}`
+
+export const articleSeoBySlugQuery = `*[
+  _type == "article" &&
+  isVisible != false &&
+  slug.current == $slug
+][0]{
+  title,
+  excerpt,
+  seoTitle,
+  seoDescription
+}`
+
+export const relatedArticlesQuery = `*[
+  _type == "article" &&
+  isVisible != false &&
+  defined(slug.current) &&
+  slug.current != $slug
+] | order(coalesce(updatedAt, publishedAt, _updatedAt, _createdAt) desc, _createdAt desc)[0...3]{
+  ${articleListProjection}
+}`
+
+export const articlesSitemapQuery = `*[
+  _type == "article" &&
+  isVisible != false &&
+  defined(slug.current)
+] | order(coalesce(updatedAt, publishedAt, _updatedAt, _createdAt) desc, _createdAt desc){
+  "slug": slug.current,
+  updatedAt,
+  publishedAt,
+  _updatedAt
 }`
 
 export const servicesListQuery = `*[
