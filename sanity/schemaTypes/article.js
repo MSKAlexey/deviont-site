@@ -43,17 +43,71 @@ export const article = defineType({
       rows: 4,
       validation: (Rule) => Rule.required(),
     }),
-    defineImageField(),
+    defineField({
+      name: 'materialType',
+      title: 'Тип материала',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'Статья', value: 'article'},
+          {title: 'Инструкция', value: 'instruction'},
+          {title: 'Разбор ошибки', value: 'error'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'article',
+    }),
     defineField({
       name: 'publishedAt',
       title: 'Дата публикации',
       type: 'datetime',
     }),
     defineField({
+      name: 'updatedAt',
+      title: 'Дата обновления',
+      type: 'datetime',
+    }),
+    defineField({
+      name: 'oneCConfiguration',
+      title: 'Конфигурация 1С',
+      type: 'string',
+      description: 'Например: 1С:УТ 11.5 или 1С:Бухгалтерия.',
+    }),
+    defineField({
+      name: 'oneCVersion',
+      title: 'Версия 1С',
+      type: 'string',
+      description: 'Например: 11.5.16 или 3.0.142.',
+    }),
+    defineField({
+      name: 'relatedService',
+      title: 'Связанная услуга',
+      type: 'reference',
+      to: [{type: 'service'}],
+    }),
+    defineField({
+      name: 'coverImage',
+      title: 'Обложка',
+      type: 'image',
+      options: {hotspot: true},
+    }),
+    defineField({
+      name: 'coverImageAlt',
+      title: 'Alt обложки',
+      type: 'string',
+    }),
+    defineField({
+      ...defineImageField(),
+      title: 'Картинка (legacy)',
+      description: 'Старое поле. Оставлено для сохранения ранее введенных данных.',
+      hidden: true,
+    }),
+    defineField({
       name: 'configVersion',
-      title: 'Версия конфигурации 1С',
+      title: 'Версия конфигурации 1С (legacy)',
       type: 'string',
       description: 'Например: УНФ 3.0.13.292 или УТ 11.5',
+      hidden: true,
     }),
     defineField({
       name: 'body',
@@ -115,16 +169,36 @@ export const article = defineType({
       initialValue: true,
       hidden: true,
     }),
+    defineField({
+      name: 'seoTitle',
+      title: 'SEO title',
+      type: 'string',
+    }),
+    defineField({
+      name: 'seoDescription',
+      title: 'SEO description',
+      type: 'text',
+      rows: 3,
+    }),
   ],
   preview: {
     select: {
       title: 'title',
       excerpt: 'excerpt',
-      configVersion: 'configVersion',
-      media: 'image',
+      materialType: 'materialType',
+      oneCConfiguration: 'oneCConfiguration',
+      media: 'coverImage',
     },
-    prepare({title, excerpt, configVersion, media}) {
-      const subtitle = [truncateText(excerpt), configVersion].filter(Boolean).join(' • ')
+    prepare({title, excerpt, materialType, oneCConfiguration, media}) {
+      const materialTypeLabel =
+        {
+          article: 'Статья',
+          instruction: 'Инструкция',
+          error: 'Разбор ошибки',
+        }[materialType] || 'Статья'
+      const subtitle = [materialTypeLabel, truncateText(excerpt), oneCConfiguration]
+        .filter(Boolean)
+        .join(' • ')
 
       return {
         title: title || 'Статья без названия',

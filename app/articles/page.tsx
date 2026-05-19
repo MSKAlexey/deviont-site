@@ -1,11 +1,28 @@
+import type {Metadata} from 'next'
 import Link from 'next/link'
 import HeaderClient from '../../components/HeaderClient'
-import ArticleMeta from '../../components/articles/ArticleMeta'
-import SectionCardImage from '../../components/sections/SectionCardImage'
+import ArticleMeta, {getArticleTypeLabel} from '../../components/articles/ArticleMeta'
+import ContactModalTrigger from '../../components/contact/ContactModalTrigger'
 import {client} from '../../sanity/lib/client'
 import {articlesListQuery, siteSettingsQuery} from '../../sanity/lib/queries'
 
 export const revalidate = 60
+
+export const metadata: Metadata = {
+  title: 'Статьи и инструкции по 1С — ДЕВИОНТ',
+  description: 'Экспертные статьи, инструкции и разборы ошибок по 1С для бизнеса.',
+}
+
+const articleFilters = [
+  {label: 'Все', href: '/articles', value: null},
+  {label: 'Статьи', href: '/articles?type=article', value: 'article'},
+  {label: 'Инструкции', href: '/articles?type=instruction', value: 'instruction'},
+  {label: 'Разбор ошибок', href: '/articles?type=error', value: 'error'},
+]
+
+type ArticleSearchParams = {
+  type?: string | string[]
+}
 
 function Footer({settings}: {settings: any}) {
   const year = new Date().getFullYear()
@@ -54,10 +71,46 @@ function normalizeConfiguredSections(settings: any) {
     .filter(Boolean)
 }
 
-export default async function ArticlesPage() {
+function resolveSelectedType(searchParams: ArticleSearchParams) {
+  const requestedType = Array.isArray(searchParams.type) ? searchParams.type[0] : searchParams.type
+
+  if (articleFilters.some((filter) => filter.value === requestedType)) {
+    return requestedType || null
+  }
+
+  return null
+}
+
+function getArticleTypeClass(value?: string | null) {
+  if (value === 'instruction') {
+    return 'articleTypeBadgeInstruction'
+  }
+
+  if (value === 'error') {
+    return 'articleTypeBadgeError'
+  }
+
+  return 'articleTypeBadgeArticle'
+}
+
+function getVisibleRelatedService(article: any) {
+  if (!article?.relatedService || article.relatedService.isVisible === false) {
+    return null
+  }
+
+  return article.relatedService
+}
+
+export default async function ArticlesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<ArticleSearchParams>
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : {}
+  const selectedType = resolveSelectedType(resolvedSearchParams)
   const [settings, articles] = await Promise.all([
     client.fetch(siteSettingsQuery),
-    client.fetch(articlesListQuery),
+    client.fetch(articlesListQuery, {type: selectedType}),
   ])
   const sections = normalizeConfiguredSections(settings)
   const resolvedArticles = Array.isArray(articles) ? articles : []
@@ -68,51 +121,86 @@ export default async function ArticlesPage() {
       <HeaderClient settings={settings} sections={sections} />
       <main className="articlesPage">
         <section className="section sectionArticlesIndex">
-          <div className="container">
-            <header className="articlesPageHead">
-              <h1>Статьи</h1>
+          <div className="container articleIndexContainer">
+            <nav className="pageBackLinks articleBreadcrumbs" aria-label="Навигация">
+              <Link href="/" className="articleBackLink">
+                На главную
+              </Link>
+            </nav>
+
+            <header className="articlesPageHead articlesIndexHead">
+              <h1>Статьи и инструкции</h1>
+              <p>Экспертные материалы, пошаговые инструкции и разборы ошибок по 1С.</p>
             </header>
 
-            {resolvedArticles.length > 0 ? (
-              <div className="sectionCardsGrid sectionCardsGridThree">
-                {resolvedArticles.map((article: any) => (
-                  <Link
-                    key={article._id}
-                    href={`/articles/${article.slug}`}
-                    className="articleCardLink"
-                  >
-                    <article className="infoCard articleCard">
-                      {article.image?.asset ? (
-                        <SectionCardImage
-                          image={article.image}
-                          alt={article.title}
-                          width={720}
-                          height={420}
-                          fit="crop"
-                          sizes="(max-width: 720px) calc(100vw - 72px), (max-width: 1180px) calc((100vw - 154px) / 2), 327px"
-                          wrapperClassName="articleCardMedia"
-                          imageClassName="articleCardImage"
-                        />
-                      ) : null}
+            <nav className="articleFilters" aria-label="Фильтр материалов">
+              {articleFilters.map((filter) => {
+                const isActive = filter.value === selectedType
 
-                      <div className="articleCardBody">
-                        <ArticleMeta
-                          publishedAt={article.publishedAt}
-                          configVersion={article.configVersion}
-                        />
-                        <h2 className="articleCardTitle">{article.title}</h2>
-                        {article.excerpt ? (
-                          <p className="articleCardExcerpt">{article.excerpt}</p>
-                        ) : null}
-                        <span className="articleCardMore">Читать статью</span>
-                      </div>
-                    </article>
+                return (
+                  <Link
+                    key={filter.label}
+                    href={filter.href}
+                    className={`articleFilterButton${isActive ? ' articleFilterButtonActive' : ''}`}
+                  >
+                    {filter.label}
                   </Link>
-                ))}
+                )
+              })}
+            </nav>
+
+            {resolvedArticles.length > 0 ? (
+              <div className="articleCardsGrid">
+                {resolvedArticles.map((article: any) => {
+                  const relatedService = getVisibleRelatedService(article)
+
+                  return (
+                    <Link
+                      key={article._id}
+                      href={`/articles/${article.slug}`}
+                      className="articleCardLink"
+                    >
+                      <article className="infoCard articleCard articleMaterialCard">
+                        <div className="articleCardBody">
+                          <span
+                            className={`articleTypeBadge ${getArticleTypeClass(article.materialType)}`}
+                          >
+                            {getArticleTypeLabel(article.materialType)}
+                          </span>
+                          <h2 className="articleCardTitle">{article.title}</h2>
+                          {article.excerpt ? (
+                            <p className="articleCardExcerpt">{article.excerpt}</p>
+                          ) : null}
+                          <div className="articleCardFooter">
+                            <ArticleMeta
+                              publishedAt={article.publishedAt}
+                              updatedAt={article.updatedAt}
+                              oneCConfiguration={article.oneCConfiguration}
+                              oneCVersion={article.oneCVersion}
+                              relatedServiceTitle={relatedService?.title}
+                            />
+                            <span className="articleCardMore">Читать →</span>
+                          </div>
+                        </div>
+                      </article>
+                    </Link>
+                  )
+                })}
               </div>
             ) : (
-              <div className="infoCard articlesEmpty">Статей пока нет.</div>
+              <div className="infoCard articlesEmpty">Материалов пока нет.</div>
             )}
+
+            <section className="articlesCta infoCard">
+              <div className="articlesCtaCopy">
+                <h2>Не нашли ответ на свой вопрос?</h2>
+                <p>
+                  Расскажите о своей задаче, и мы подготовим материал или поможем решить
+                  проблему.
+                </p>
+              </div>
+              <ContactModalTrigger className="btnPrimary">Обсудить задачу</ContactModalTrigger>
+            </section>
           </div>
         </section>
       </main>
