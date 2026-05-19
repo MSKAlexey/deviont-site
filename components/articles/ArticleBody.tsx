@@ -60,10 +60,33 @@ const noteTypeClasses: Record<string, string> = {
   note: 'articleNoteDefault',
 }
 
+function renderMarkdownStrongText(text: string, keyPrefix: string) {
+  const nodes: ReactNode[] = []
+  const boldPattern = /\*\*([^*]+)\*\*/g
+  let lastIndex = 0
+  let match: RegExpExecArray | null = boldPattern.exec(text)
+
+  while (match) {
+    if (match.index > lastIndex) {
+      nodes.push(text.slice(lastIndex, match.index))
+    }
+
+    nodes.push(<strong key={`${keyPrefix}-strong-${match.index}`}>{match[1]}</strong>)
+    lastIndex = match.index + match[0].length
+    match = boldPattern.exec(text)
+  }
+
+  if (lastIndex < text.length) {
+    nodes.push(text.slice(lastIndex))
+  }
+
+  return nodes.length > 0 ? nodes : text
+}
+
 function renderMultilineText(text: string, keyPrefix: string) {
   return text.split(/\r\n|\r|\n/).map((line, index, items) => (
     <Fragment key={`${keyPrefix}-${index}`}>
-      {line}
+      {renderMarkdownStrongText(line, `${keyPrefix}-${index}`)}
       {index < items.length - 1 ? <br /> : null}
     </Fragment>
   ))
@@ -235,7 +258,12 @@ function renderLineSegments(
 ) {
   return line.map((segment, index) => (
     <Fragment key={`${keyPrefix}-${segment.key}-${index}`}>
-      {applyMarks(segment.text, segment.marks, markDefs, `${keyPrefix}-mark-${index}`)}
+      {applyMarks(
+        renderMarkdownStrongText(segment.text, `${keyPrefix}-text-${index}`),
+        segment.marks,
+        markDefs,
+        `${keyPrefix}-mark-${index}`
+      )}
     </Fragment>
   ))
 }
@@ -312,7 +340,11 @@ function renderMarkdownHeadingLines(block: PortableTextBlock, blockIndex: number
       return
     }
 
-    paragraphLines.push(line)
+    if (lineText.trim()) {
+      paragraphLines.push(line)
+    } else {
+      flushParagraph()
+    }
   })
 
   flushParagraph()
