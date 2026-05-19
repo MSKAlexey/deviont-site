@@ -1687,6 +1687,79 @@ textarea {
   text-underline-offset: 0.16em;
 }
 
+.articleBodyFigure {
+  display: grid;
+  gap: 10px;
+  margin: 26px 0;
+}
+
+.articleBodyImageFrame {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  max-width: 100%;
+  padding: clamp(10px, 1.8vw, 16px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: #f8fbfd;
+}
+
+.articleBodyImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 560px;
+  object-fit: contain;
+}
+
+.articleBodyFigure figcaption {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.articleNote {
+  display: grid;
+  gap: 8px;
+  margin: 24px 0;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 18px;
+  background: #f8fbfd;
+}
+
+.articleNote strong {
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.35;
+}
+
+.articleNote p {
+  margin: 0;
+}
+
+.articleNoteImportant {
+  border-left-color: #d18a16;
+  background: #fff8ea;
+}
+
+.articleNoteTip {
+  border-left-color: #2f855a;
+  background: #effaf4;
+}
+
+.articleNoteError {
+  border-left-color: #c74949;
+  background: #fff1f1;
+}
+
+.articleNoteDefault {
+  border-left-color: var(--accent);
+  background: #f3f8fc;
+}
+
 .ctaBox {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);

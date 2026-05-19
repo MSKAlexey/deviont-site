@@ -299,7 +299,28 @@ const articleListProjection = `
 
 const articlePageProjection = `
   ${articleListProjection},
-  body
+  body[]{
+    ...,
+    markDefs[]{
+      ...,
+      "article": select(
+        _type == "articleLink" => article->{
+          title,
+          "slug": slug.current
+        }
+      ),
+      "service": select(
+        _type == "serviceLink" => service->{
+          title,
+          "slug": slug.current,
+          isVisible
+        }
+      )
+    },
+    "asset": select(_type in ["articleImage", "image"] => asset, asset),
+    "alt": select(_type in ["articleImage", "image"] => alt, alt),
+    "caption": select(_type in ["articleImage", "image"] => caption, caption)
+  }
 `
 
 const serviceListProjection = `

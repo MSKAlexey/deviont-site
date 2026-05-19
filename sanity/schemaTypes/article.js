@@ -135,7 +135,7 @@ export const article = defineType({
             annotations: [
               {
                 name: 'link',
-                title: 'Ссылка',
+                title: 'Внешняя ссылка',
                 type: 'object',
                 fields: [
                   defineField({
@@ -150,7 +150,99 @@ export const article = defineType({
                   }),
                 ],
               },
+              {
+                name: 'articleLink',
+                title: 'Ссылка на статью',
+                type: 'object',
+                fields: [
+                  defineField({
+                    name: 'article',
+                    title: 'Статья',
+                    type: 'reference',
+                    to: [{type: 'article'}],
+                  }),
+                ],
+              },
+              {
+                name: 'serviceLink',
+                title: 'Ссылка на услугу',
+                type: 'object',
+                fields: [
+                  defineField({
+                    name: 'service',
+                    title: 'Услуга',
+                    type: 'reference',
+                    to: [{type: 'service'}],
+                  }),
+                ],
+              },
             ],
+          },
+        }),
+        defineArrayMember({
+          name: 'articleImage',
+          title: 'Изображение',
+          type: 'image',
+          options: {hotspot: true},
+          fields: [
+            defineField({
+              name: 'alt',
+              title: 'Alt',
+              type: 'string',
+            }),
+            defineField({
+              name: 'caption',
+              title: 'Подпись',
+              type: 'string',
+            }),
+          ],
+        }),
+        defineArrayMember({
+          name: 'articleNote',
+          title: 'Примечание',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'noteType',
+              title: 'Тип',
+              type: 'string',
+              options: {
+                list: [
+                  {title: 'Важно', value: 'important'},
+                  {title: 'Совет', value: 'tip'},
+                  {title: 'Ошибка', value: 'error'},
+                  {title: 'Примечание', value: 'note'},
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'note',
+            }),
+            defineField({
+              name: 'text',
+              title: 'Текст',
+              type: 'text',
+              rows: 3,
+            }),
+          ],
+          preview: {
+            select: {
+              noteType: 'noteType',
+              text: 'text',
+            },
+            prepare({noteType, text}) {
+              const label =
+                {
+                  important: 'Важно',
+                  tip: 'Совет',
+                  error: 'Ошибка',
+                  note: 'Примечание',
+                }[noteType] || 'Примечание'
+
+              return {
+                title: label,
+                subtitle: truncateText(text),
+              }
+            },
           },
         }),
       ],
