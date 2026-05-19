@@ -268,7 +268,7 @@ function renderLineSegments(
   ))
 }
 
-function renderMarkdownHeadingLines(block: PortableTextBlock, blockIndex: number) {
+function renderMarkdownTextLines(block: PortableTextBlock, blockIndex: number) {
   if (block.style && block.style !== 'normal') {
     return null
   }
@@ -276,13 +276,15 @@ function renderMarkdownHeadingLines(block: PortableTextBlock, blockIndex: number
   const markDefs = Array.isArray(block.markDefs) ? block.markDefs : []
   const lines = getInlineLineSegments(block)
   const hasMarkdownHeading = lines.some((line) => /^#{2,3}\s+/.test(getLineText(line)))
+  const hasMarkdownList = lines.some((line) => /^-\s+/.test(getLineText(line)))
 
-  if (!hasMarkdownHeading) {
+  if (!hasMarkdownHeading && !hasMarkdownList) {
     return null
   }
 
   const nodes: ReactNode[] = []
   let paragraphLines: InlineLineSegment[][] = []
+  let listLines: InlineLineSegment[][] = []
 
   const flushParagraph = () => {
     if (paragraphLines.length === 0) {
@@ -307,13 +309,37 @@ function renderMarkdownHeadingLines(block: PortableTextBlock, blockIndex: number
     paragraphLines = []
   }
 
+  const flushMarkdownList = () => {
+    if (listLines.length === 0) {
+      return
+    }
+
+    nodes.push(
+      <ul key={`article-md-ul-${block._key || blockIndex}-${nodes.length}`}>
+        {listLines.map((line, lineIndex) => (
+          <li key={`article-md-li-${block._key || blockIndex}-${lineIndex}`}>
+            {renderLineSegments(
+              line,
+              markDefs,
+              `article-md-li-${blockIndex}-${nodes.length}-${lineIndex}`
+            )}
+          </li>
+        ))}
+      </ul>
+    )
+
+    listLines = []
+  }
+
   lines.forEach((line, lineIndex) => {
     const lineText = getLineText(line)
     const h3Match = lineText.match(/^###\s+/)
     const h2Match = lineText.match(/^##\s+/)
+    const listMatch = lineText.match(/^-\s+/)
 
     if (h3Match || h2Match) {
       flushParagraph()
+      flushMarkdownList()
 
       const markerLength = (h3Match || h2Match)?.[0].length || 0
       const headingLine = removeLeadingText(line, markerLength)
@@ -340,13 +366,23 @@ function renderMarkdownHeadingLines(block: PortableTextBlock, blockIndex: number
       return
     }
 
+    if (listMatch) {
+      flushParagraph()
+      listLines.push(removeLeadingText(line, listMatch[0].length))
+      return
+    }
+
+    flushMarkdownList()
+
     if (lineText.trim()) {
       paragraphLines.push(line)
     } else {
       flushParagraph()
+      flushMarkdownList()
     }
   })
 
+  flushMarkdownList()
   flushParagraph()
 
   return nodes.length > 0 ? nodes : null
@@ -397,7 +433,7 @@ function renderArticleNote(block: PortableTextBlock, blockIndex: number) {
 }
 
 function renderBlockContent(block: PortableTextBlock, blockIndex: number) {
-  const markdownContent = renderMarkdownHeadingLines(block, blockIndex)
+  const markdownContent = renderMarkdownTextLines(block, blockIndex)
 
   if (markdownContent) {
     return markdownContent

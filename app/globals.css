@@ -1699,10 +1699,11 @@ textarea {
   place-items: center;
   overflow: hidden;
   max-width: 100%;
-  padding: clamp(10px, 1.8vw, 16px);
+  padding: 0;
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: #f8fbfd;
+  background: #ffffff;
+  line-height: 0;
 }
 
 .articleBodyImage {
@@ -1710,6 +1711,9 @@ textarea {
   width: 100%;
   height: auto;
   max-height: 560px;
+  opacity: 1;
+  filter: none;
+  mix-blend-mode: normal;
   object-fit: contain;
 }
 

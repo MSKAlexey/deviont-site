@@ -97,6 +97,23 @@ function getDateLabel(article: any) {
   return 'Опубликовано'
 }
 
+function hasSimilarArticleCardData(article: any) {
+  if (!article?.title || !article?.slug) {
+    return false
+  }
+
+  const relatedService = getVisibleRelatedService(article)
+
+  return Boolean(
+    article.excerpt ||
+      article.oneCConfiguration ||
+      article.oneCVersion ||
+      article.updatedAt ||
+      article.publishedAt ||
+      relatedService?.title
+  )
+}
+
 function ArticleCard({article}: {article: any}) {
   const relatedService = getVisibleRelatedService(article)
 
@@ -163,7 +180,9 @@ export default async function ArticlePage({params}: ArticlePageProps) {
     article.oneCVersion ? {label: 'Версия', value: article.oneCVersion} : null,
     formattedDate ? {label: getDateLabel(article), value: formattedDate} : null,
   ].filter(Boolean) as Array<{label: string; value: string}>
-  const resolvedSimilarArticles = Array.isArray(similarArticles) ? similarArticles : []
+  const resolvedSimilarArticles = Array.isArray(similarArticles)
+    ? similarArticles.filter(hasSimilarArticleCardData)
+    : []
 
   return (
     <>
