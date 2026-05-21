@@ -319,7 +319,9 @@ const articlePageProjection = `
     },
     "asset": select(_type in ["articleImage", "image"] => asset, asset),
     "alt": select(_type in ["articleImage", "image"] => alt, alt),
-    "caption": select(_type in ["articleImage", "image"] => caption, caption)
+    "caption": select(_type in ["articleImage", "image"] => caption, caption),
+    "imageSize": select(_type in ["articleImage", "image"] => imageSize, imageSize),
+    "imageAspectRatio": select(_type in ["articleImage", "image"] => imageAspectRatio, imageAspectRatio)
   }
 `
 

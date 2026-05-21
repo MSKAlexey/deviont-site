@@ -36,6 +36,8 @@ type PortableTextBlock = {
   asset?: unknown
   alt?: string
   caption?: string
+  imageSize?: string
+  imageAspectRatio?: string
   noteType?: string
   text?: string
 }
@@ -58,6 +60,41 @@ const noteTypeClasses: Record<string, string> = {
   tip: 'articleNoteTip',
   error: 'articleNoteError',
   note: 'articleNoteDefault',
+}
+
+const articleImageSizeClasses: Record<string, string> = {
+  compact: 'articleBodyFigureCompact',
+  medium: 'articleBodyFigureMedium',
+  wide: 'articleBodyFigureWide',
+}
+
+const articleImageAspectRatios: Record<string, {width: number; height: number} | null> = {
+  original: null,
+  portrait: {width: 3, height: 4},
+  square: {width: 1, height: 1},
+  landscape: {width: 16, height: 9},
+  panorama: {width: 21, height: 9},
+}
+
+const articleImageAspectRatioClasses: Record<string, string> = {
+  portrait: 'articleBodyFigurePortrait',
+  square: 'articleBodyFigureSquare',
+  landscape: 'articleBodyFigureLandscape',
+  panorama: 'articleBodyFigurePanorama',
+}
+
+function getArticleImageSize(value?: string) {
+  return value && articleImageSizeClasses[value] ? value : 'wide'
+}
+
+function getArticleImageAspectRatio(value?: string) {
+  return value && Object.prototype.hasOwnProperty.call(articleImageAspectRatios, value)
+    ? value
+    : 'original'
+}
+
+function getClassName(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ')
 }
 
 function renderMarkdownStrongText(text: string, keyPrefix: string) {
@@ -393,15 +430,27 @@ function renderArticleImage(block: PortableTextBlock, blockIndex: number) {
     return null
   }
 
+  const imageSize = getArticleImageSize(block.imageSize)
+  const imageAspectRatio = getArticleImageAspectRatio(block.imageAspectRatio)
+  const ratio = articleImageAspectRatios[imageAspectRatio]
+  const width = imageSize === 'compact' ? 760 : imageSize === 'medium' ? 960 : 1200
+  const height = ratio ? Math.round((width / ratio.width) * ratio.height) : undefined
+
   return (
     <figure
       key={block._key || `article-image-${blockIndex}`}
-      className="articleBodyFigure"
+      className={getClassName(
+        'articleBodyFigure',
+        articleImageSizeClasses[imageSize],
+        articleImageAspectRatioClasses[imageAspectRatio]
+      )}
     >
       <SectionCardImage
         image={block}
         alt={block.alt || block.caption || ''}
-        width={1200}
+        width={width}
+        height={height}
+        fit={ratio ? 'crop' : undefined}
         sizes="(max-width: 720px) calc(100vw - 56px), (max-width: 1180px) calc(100vw - 112px), 820px"
         wrapperClassName="articleBodyImageFrame"
         imageClassName="articleBodyImage"

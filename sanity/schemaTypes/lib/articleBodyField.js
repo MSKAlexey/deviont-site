@@ -110,6 +110,37 @@ export function defineArticleBodyField({
             title: 'Подпись',
             type: 'string',
           }),
+          defineField({
+            name: 'imageSize',
+            title: 'Размер на сайте',
+            type: 'string',
+            options: {
+              list: [
+                {title: 'Компактный', value: 'compact'},
+                {title: 'Средний', value: 'medium'},
+                {title: 'Широкий', value: 'wide'},
+              ],
+              layout: 'dropdown',
+            },
+            initialValue: 'wide',
+          }),
+          defineField({
+            name: 'imageAspectRatio',
+            title: 'Формат на сайте',
+            type: 'string',
+            description: 'Выберите формат отображения картинки в статье. Обрезка берется из Hotspot & Crop.',
+            options: {
+              list: [
+                {title: 'Оригинал', value: 'original'},
+                {title: '3:4', value: 'portrait'},
+                {title: 'Квадрат', value: 'square'},
+                {title: '16:9', value: 'landscape'},
+                {title: 'Панорама', value: 'panorama'},
+              ],
+              layout: 'dropdown',
+            },
+            initialValue: 'original',
+          }),
         ],
       }),
       defineArrayMember({
