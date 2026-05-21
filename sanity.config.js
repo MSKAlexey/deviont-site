@@ -6,19 +6,42 @@ import {structureTool} from 'sanity/structure'
 import {schemaTypes} from './sanity/schemaTypes/index.js'
 import {structure} from './sanity/structure.js'
 import {createDeleteCardsBlockDocumentAction} from './sanity/documentActions/deleteCardsBlockDocumentAction.js'
+import {
+  SaveArticleRevisionAction,
+  RestoreArticleRevisionAction,
+  createPublishArticleWithRevisionAction,
+} from './sanity/documentActions/articleRevisionActions.js'
 
 function resolveDocumentActions(previousActions, context) {
-  if (context.schemaType !== 'cardsBlockDocument') {
-    return previousActions
+  if (context.schemaType === 'article') {
+    return [
+      ...previousActions.map((action) =>
+        action?.action === 'publish' ? createPublishArticleWithRevisionAction(action) : action
+      ),
+      SaveArticleRevisionAction,
+    ]
   }
 
-  return previousActions.map((action) =>
-    action?.action === 'delete' ? createDeleteCardsBlockDocumentAction(action) : action
-  )
+  if (context.schemaType === 'articleRevision') {
+    return [...previousActions, RestoreArticleRevisionAction]
+  }
+
+  if (context.schemaType === 'cardsBlockDocument') {
+    return previousActions.map((action) =>
+      action?.action === 'delete' ? createDeleteCardsBlockDocumentAction(action) : action
+    )
+  }
+
+  return previousActions
 }
 
 function resolveNewDocumentOptions(previousOptions) {
-  return previousOptions.filter((option) => option.templateId !== 'pageSection' && option.schemaType !== 'pageSection')
+  return previousOptions.filter(
+    (option) =>
+      option.templateId !== 'pageSection' &&
+      option.schemaType !== 'pageSection' &&
+      option.schemaType !== 'articleRevision'
+  )
 }
 
 export default defineConfig({

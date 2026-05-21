@@ -31,6 +31,7 @@ export const structure = (S) =>
               S.documentTypeListItem('cardsBlockDocument').title('Блоки карточек'),
               S.documentTypeListItem('service').title('Услуги 1С'),
               S.documentTypeListItem('article').title('Статьи'),
+              S.documentTypeListItem('articleRevision').title('Версии статей'),
               S.documentTypeListItem('certificatesBlockDocument').title('Сертификаты'),
               S.documentTypeListItem('listBlockDocument').title('Списки'),
               S.documentTypeListItem('ctaBlockDocument').title('CTA блоки'),

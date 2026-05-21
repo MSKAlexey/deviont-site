@@ -2,6 +2,7 @@ import {siteSettings} from './siteSettings.js'
 import {service} from './service.js'
 import {product} from './product.js'
 import {article} from './article.js'
+import {articleRevision} from './articleRevision.js'
 import {taskItem} from './taskItem.js'
 import {pageSection} from './pageSection.js'
 import {
@@ -27,6 +28,7 @@ export const schemaTypes = [
   service,
   product,
   article,
+  articleRevision,
   taskItem,
   cardsBlockItem,
   heroBlock,
