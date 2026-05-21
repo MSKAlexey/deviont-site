@@ -101,6 +101,7 @@ export const article = defineType({
             value: '1С:Бухгалтерия предприятия, редакция 3.0',
           },
         ],
+        layout: 'dropdown',
       },
     }),
     defineField({
