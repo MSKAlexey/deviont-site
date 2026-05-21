@@ -405,7 +405,6 @@ function renderArticleImage(block: PortableTextBlock, blockIndex: number) {
         sizes="(max-width: 720px) calc(100vw - 56px), (max-width: 1180px) calc(100vw - 112px), 820px"
         wrapperClassName="articleBodyImageFrame"
         imageClassName="articleBodyImage"
-        ignoreCrop
       />
       {block.caption ? <figcaption>{block.caption}</figcaption> : null}
     </figure>
