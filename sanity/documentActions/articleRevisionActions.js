@@ -32,6 +32,37 @@ function removeUndefinedValues(value) {
   )
 }
 
+function isAssetReference(value) {
+  return (
+    value?._type === 'reference' &&
+    typeof value._ref === 'string' &&
+    (value._ref.startsWith('image-') || value._ref.startsWith('file-'))
+  )
+}
+
+function makeDocumentReferencesWeak(value) {
+  if (Array.isArray(value)) {
+    return value.map(makeDocumentReferencesWeak)
+  }
+
+  if (!value || typeof value !== 'object') {
+    return value
+  }
+
+  const nextValue = Object.fromEntries(
+    Object.entries(value).map(([key, fieldValue]) => [
+      key,
+      makeDocumentReferencesWeak(fieldValue),
+    ])
+  )
+
+  if (nextValue._type === 'reference' && nextValue._ref && !isAssetReference(nextValue)) {
+    nextValue._weak = true
+  }
+
+  return nextValue
+}
+
 function hasField(document, fieldName) {
   return Object.prototype.hasOwnProperty.call(document || {}, fieldName)
 }
@@ -53,11 +84,12 @@ function buildRevisionDocument({
     article: {
       _type: 'reference',
       _ref: articleId,
+      _weak: true,
     },
     articleTitle: article.title,
     articleSlug: article.slug?.current,
     excerpt: article.excerpt,
-    body: article.body,
+    body: makeDocumentReferencesWeak(article.body),
     coverImage: article.coverImage,
     coverImageAlt: article.coverImageAlt,
     seoTitle: article.seoTitle,
@@ -65,7 +97,7 @@ function buildRevisionDocument({
     materialType: article.materialType,
     oneCConfiguration: article.oneCConfiguration,
     oneCVersion: article.oneCVersion,
-    relatedService: article.relatedService,
+    relatedService: makeDocumentReferencesWeak(article.relatedService),
     sourceArticleUpdatedAt: article._updatedAt,
     revisionCreatedAt,
     revisionComment,

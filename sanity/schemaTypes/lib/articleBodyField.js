@@ -18,6 +18,7 @@ export function defineArticleBodyField({
   name = 'body',
   title = 'Текст статьи',
   readOnly = false,
+  referenceWeak = false,
   validation = undefined,
 } = {}) {
   return defineField({
@@ -72,6 +73,7 @@ export function defineArticleBodyField({
                   title: 'Статья',
                   type: 'reference',
                   to: [{type: 'article'}],
+                  ...(referenceWeak ? {weak: true} : {}),
                 }),
               ],
             },
@@ -85,6 +87,7 @@ export function defineArticleBodyField({
                   title: 'Услуга',
                   type: 'reference',
                   to: [{type: 'service'}],
+                  ...(referenceWeak ? {weak: true} : {}),
                 }),
               ],
             },

@@ -27,6 +27,7 @@ export const articleRevision = defineType({
       title: 'Статья',
       type: 'reference',
       to: [{type: 'article'}],
+      weak: true,
       readOnly: true,
       validation: (Rule) => Rule.required(),
     }),
@@ -51,6 +52,7 @@ export const articleRevision = defineType({
     }),
     defineArticleBodyField({
       readOnly: true,
+      referenceWeak: true,
     }),
     defineField({
       name: 'coverImage',
@@ -108,6 +110,7 @@ export const articleRevision = defineType({
       title: 'Связанная услуга',
       type: 'reference',
       to: [{type: 'service'}],
+      weak: true,
       readOnly: true,
     }),
     defineField({
