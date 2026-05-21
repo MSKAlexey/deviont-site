@@ -1,25 +1,20 @@
 import {useState} from 'react'
 import {useToast} from '@sanity/ui'
 import {useClient} from 'sanity'
+import {getDraftDocumentId, normalizeSanityDocumentId} from '../lib/documentIds.js'
 
 const API_VERSION = '2026-03-27'
 const publishActionWrapperCache = new WeakMap()
 const BEFORE_PUBLISH_DUPLICATE_QUERY = `
   *[
     _type == "articleRevision" &&
-    article._ref == $articleId &&
+    article._ref in [$articleId, $draftArticleId] &&
     revisionType == "beforePublish" &&
     sourceArticleUpdatedAt == $sourceArticleUpdatedAt
   ][0]._id
 `
 const ARTICLE_EXISTS_QUERY = `*[_id in [$articleId, $draftId]][0]._id`
 const CURRENT_ARTICLE_QUERY = `coalesce(*[_id == $draftId][0], *[_id == $articleId][0])`
-
-function getPublishedDocumentId(documentId) {
-  return typeof documentId === 'string' && documentId.startsWith('drafts.')
-    ? documentId.slice('drafts.'.length)
-    : documentId
-}
 
 function removeUndefinedValues(value) {
   if (Array.isArray(value)) {
@@ -47,7 +42,7 @@ function buildRevisionDocument({
   revisionComment,
   revisionCreatedAt = new Date().toISOString(),
 }) {
-  const articleId = getPublishedDocumentId(article?._id)
+  const articleId = normalizeSanityDocumentId(article?._id)
 
   if (!articleId) {
     throw new Error('Статья ещё не сохранена')
@@ -98,6 +93,7 @@ async function createArticleRevision({
   ) {
     const existingRevisionId = await client.fetch(BEFORE_PUBLISH_DUPLICATE_QUERY, {
       articleId: revisionDocument.article._ref,
+      draftArticleId: getDraftDocumentId(revisionDocument.article._ref),
       sourceArticleUpdatedAt: revisionDocument.sourceArticleUpdatedAt,
     })
 
@@ -161,7 +157,7 @@ export function SaveArticleRevisionAction(props) {
   const toast = useToast()
   const [isSaving, setIsSaving] = useState(false)
   const article = props.draft || props.published
-  const articleId = getPublishedDocumentId(article?._id || props.id)
+  const articleId = normalizeSanityDocumentId(article?._id || props.id)
   const disabled = isSaving || !article || !articleId
 
   return {
@@ -219,8 +215,8 @@ export function RestoreArticleRevisionAction(props) {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
   const [isRestoring, setIsRestoring] = useState(false)
   const revision = props.draft || props.published
-  const articleId = getPublishedDocumentId(revision?.article?._ref)
-  const draftId = articleId ? `drafts.${articleId}` : ''
+  const articleId = normalizeSanityDocumentId(revision?.article?._ref)
+  const draftId = getDraftDocumentId(articleId)
   const disabled = isRestoring || !revision || !articleId
 
   async function handleRestore() {
@@ -342,21 +338,28 @@ export function createPublishArticleWithRevisionAction(originalAction) {
         setIsCreatingRevision(true)
 
         try {
-          if (article) {
-            await createArticleRevision({
-              client,
-              article,
-              revisionType: 'beforePublish',
-              skipDuplicateBeforePublish: true,
-            })
+          if (!article) {
+            throw new Error('Не удалось получить данные статьи для версии перед публикацией')
           }
+
+          await createArticleRevision({
+            client,
+            article,
+            revisionType: 'beforePublish',
+            skipDuplicateBeforePublish: true,
+          })
         } catch (error) {
           toast.push({
             closable: true,
-            status: 'warning',
-            title: 'Не удалось создать версию перед публикацией',
-            description: error?.message,
+            status: 'error',
+            title: 'Публикация остановлена',
+            description:
+              error?.message ||
+              'Не удалось создать версию перед публикацией. Статья не опубликована.',
           })
+          setIsCreatingRevision(false)
+          props.onComplete?.()
+          return
         } finally {
           setIsCreatingRevision(false)
         }

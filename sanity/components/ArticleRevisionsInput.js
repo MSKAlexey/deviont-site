@@ -2,10 +2,11 @@ import {useEffect, useMemo, useState} from 'react'
 import {Badge, Box, Card, Flex, Stack, Text} from '@sanity/ui'
 import {useClient, useFormValue} from 'sanity'
 import {IntentLink} from 'sanity/router'
+import {getDraftDocumentId, normalizeSanityDocumentId} from '../lib/documentIds.js'
 
 const API_VERSION = '2026-03-27'
 const ARTICLE_REVISIONS_QUERY = `
-  *[_type == "articleRevision" && article._ref == $articleId]
+  *[_type == "articleRevision" && article._ref in [$articleId, $draftArticleId]]
     | order(revisionCreatedAt desc)[0...20]{
       _id,
       articleTitle,
@@ -22,12 +23,6 @@ const revisionTypeTitles = {
   restorePoint: 'Точка восстановления',
 }
 
-function getPublishedDocumentId(documentId) {
-  return typeof documentId === 'string' && documentId.startsWith('drafts.')
-    ? documentId.slice('drafts.'.length)
-    : documentId
-}
-
 function formatDateTime(value) {
   if (!value) {
     return 'Дата не указана'
@@ -41,7 +36,8 @@ function formatDateTime(value) {
 export default function ArticleRevisionsInput() {
   const client = useClient({apiVersion: API_VERSION})
   const documentId = useFormValue(['_id'])
-  const articleId = useMemo(() => getPublishedDocumentId(documentId), [documentId])
+  const articleId = useMemo(() => normalizeSanityDocumentId(documentId), [documentId])
+  const draftArticleId = useMemo(() => getDraftDocumentId(articleId), [articleId])
   const [state, setState] = useState({
     articleId: null,
     revisions: [],
@@ -56,7 +52,7 @@ export default function ArticleRevisionsInput() {
     let isCancelled = false
 
     client
-      .fetch(ARTICLE_REVISIONS_QUERY, {articleId})
+      .fetch(ARTICLE_REVISIONS_QUERY, {articleId, draftArticleId})
       .then((revisions) => {
         if (!isCancelled) {
           setState({
@@ -79,7 +75,7 @@ export default function ArticleRevisionsInput() {
     return () => {
       isCancelled = true
     }
-  }, [articleId, client])
+  }, [articleId, client, draftArticleId])
 
   if (!articleId) {
     return (
