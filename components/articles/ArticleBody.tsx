@@ -315,7 +315,7 @@ function renderLineSegments(
 
 function detectAutoNoteMarker(lineText: string) {
   const markerMatch = lineText.match(
-    /^\s*(?:>\s*)?(?:\*\*)?(Внимание|Важно|Совет|Ошибка|Примечание)(?:\*\*)?[:!](?:\*\*)?[ \t]*/
+    /^[\s\uFEFF\u200B]*(?:>\s*)?(?:\*\*)?(Внимание|Важно|Совет|Ошибка|Примечание)(?:\*\*)?\s*[:!](?:\*\*)?\s*/
   )
 
   if (!markerMatch) {
@@ -365,7 +365,7 @@ function trimEmptyEdgeLines(lines: InlineLineSegment[][]) {
 }
 
 function renderAutoNoteParagraph(block: PortableTextBlock, blockIndex: number) {
-  if (block.style && block.style !== 'normal') {
+  if (block.style && block.style !== 'normal' && block.style !== 'blockquote') {
     return null
   }
 
