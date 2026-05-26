@@ -62,6 +62,14 @@ const noteTypeClasses: Record<string, string> = {
   note: 'articleNoteDefault',
 }
 
+const autoNoteMarkerTypes: Record<string, string> = {
+  Внимание: 'important',
+  Важно: 'important',
+  Совет: 'tip',
+  Ошибка: 'error',
+  Примечание: 'note',
+}
+
 const articleImageSizeClasses: Record<string, string> = {
   compact: 'articleBodyFigureCompact',
   medium: 'articleBodyFigureMedium',
@@ -305,6 +313,72 @@ function renderLineSegments(
   ))
 }
 
+function detectAutoNoteMarker(lineText: string) {
+  const markerMatch = lineText.match(/^\s*(Внимание|Важно|Совет|Ошибка|Примечание)[:!][ \t]*/)
+
+  if (!markerMatch) {
+    return null
+  }
+
+  return {
+    noteType: autoNoteMarkerTypes[markerMatch[1]] || 'note',
+    markerLength: markerMatch[0].length,
+  }
+}
+
+function trimEmptyEdgeLines(lines: InlineLineSegment[][]) {
+  let startIndex = 0
+  let endIndex = lines.length
+
+  while (startIndex < endIndex && !getLineText(lines[startIndex]).trim()) {
+    startIndex += 1
+  }
+
+  while (endIndex > startIndex && !getLineText(lines[endIndex - 1]).trim()) {
+    endIndex -= 1
+  }
+
+  return lines.slice(startIndex, endIndex)
+}
+
+function renderAutoNoteParagraph(block: PortableTextBlock, blockIndex: number) {
+  if (block.style && block.style !== 'normal') {
+    return null
+  }
+
+  const markDefs = Array.isArray(block.markDefs) ? block.markDefs : []
+  const lines = getInlineLineSegments(block)
+  const firstLine = lines[0] || []
+  const detectedNote = detectAutoNoteMarker(getLineText(firstLine))
+
+  if (!detectedNote) {
+    return null
+  }
+
+  const contentLines = trimEmptyEdgeLines([
+    removeLeadingText(firstLine, detectedNote.markerLength),
+    ...lines.slice(1),
+  ])
+
+  if (contentLines.length === 0) {
+    return null
+  }
+
+  const noteContent = contentLines.flatMap((line, lineIndex) => [
+    ...renderLineSegments(line, markDefs, `article-auto-note-${blockIndex}-${lineIndex}`),
+    lineIndex < contentLines.length - 1 ? (
+      <br key={`article-auto-note-br-${blockIndex}-${lineIndex}`} />
+    ) : null,
+  ])
+
+  return (
+    <aside className={`articleNote ${noteTypeClasses[detectedNote.noteType]}`}>
+      <strong>{noteTypeLabels[detectedNote.noteType]}</strong>
+      <p>{noteContent}</p>
+    </aside>
+  )
+}
+
 function renderMarkdownTextLines(block: PortableTextBlock, blockIndex: number) {
   if (block.style && block.style !== 'normal') {
     return null
@@ -485,6 +559,12 @@ function renderBlockContent(block: PortableTextBlock, blockIndex: number) {
 
   if (markdownContent) {
     return markdownContent
+  }
+
+  const autoNoteContent = renderAutoNoteParagraph(block, blockIndex)
+
+  if (autoNoteContent) {
+    return autoNoteContent
   }
 
   const children = renderInlineChildren(block, blockIndex).filter(Boolean)
