@@ -364,13 +364,11 @@ function trimEmptyEdgeLines(lines: InlineLineSegment[][]) {
   return lines.slice(startIndex, endIndex)
 }
 
-function renderAutoNoteParagraph(block: PortableTextBlock, blockIndex: number) {
-  if (block.style && block.style !== 'normal' && block.style !== 'blockquote') {
-    return null
-  }
-
-  const markDefs = Array.isArray(block.markDefs) ? block.markDefs : []
-  const lines = getInlineLineSegments(block)
+function renderAutoNoteLines(
+  lines: InlineLineSegment[][],
+  markDefs: PortableTextMarkDef[],
+  keyPrefix: string
+) {
   const detectedNote = detectAutoNoteStart(lines)
 
   if (!detectedNote) {
@@ -388,10 +386,8 @@ function renderAutoNoteParagraph(block: PortableTextBlock, blockIndex: number) {
   }
 
   const noteContent = contentLines.flatMap((line, lineIndex) => [
-    ...renderLineSegments(line, markDefs, `article-auto-note-${blockIndex}-${lineIndex}`),
-    lineIndex < contentLines.length - 1 ? (
-      <br key={`article-auto-note-br-${blockIndex}-${lineIndex}`} />
-    ) : null,
+    ...renderLineSegments(line, markDefs, `${keyPrefix}-line-${lineIndex}`),
+    lineIndex < contentLines.length - 1 ? <br key={`${keyPrefix}-br-${lineIndex}`} /> : null,
   ])
 
   return (
@@ -400,6 +396,17 @@ function renderAutoNoteParagraph(block: PortableTextBlock, blockIndex: number) {
       <p>{noteContent}</p>
     </aside>
   )
+}
+
+function renderAutoNoteParagraph(block: PortableTextBlock, blockIndex: number) {
+  if (block.style && block.style !== 'normal' && block.style !== 'blockquote') {
+    return null
+  }
+
+  const markDefs = Array.isArray(block.markDefs) ? block.markDefs : []
+  const lines = getInlineLineSegments(block)
+
+  return renderAutoNoteLines(lines, markDefs, `article-auto-note-${blockIndex}`)
 }
 
 function renderMarkdownTextLines(block: PortableTextBlock, blockIndex: number) {
@@ -422,6 +429,22 @@ function renderMarkdownTextLines(block: PortableTextBlock, blockIndex: number) {
 
   const flushParagraph = () => {
     if (paragraphLines.length === 0) {
+      return
+    }
+
+    const autoNoteContent = renderAutoNoteLines(
+      paragraphLines,
+      markDefs,
+      `article-md-auto-note-${blockIndex}-${nodes.length}`
+    )
+
+    if (autoNoteContent) {
+      nodes.push(
+        <Fragment key={`article-md-auto-note-${block._key || blockIndex}-${nodes.length}`}>
+          {autoNoteContent}
+        </Fragment>
+      )
+      paragraphLines = []
       return
     }
 
