@@ -314,7 +314,9 @@ function renderLineSegments(
 }
 
 function detectAutoNoteMarker(lineText: string) {
-  const markerMatch = lineText.match(/^\s*(Внимание|Важно|Совет|Ошибка|Примечание)[:!][ \t]*/)
+  const markerMatch = lineText.match(
+    /^\s*(?:>\s*)?(?:\*\*)?(Внимание|Важно|Совет|Ошибка|Примечание)(?:\*\*)?[:!](?:\*\*)?[ \t]*/
+  )
 
   if (!markerMatch) {
     return null
@@ -324,6 +326,27 @@ function detectAutoNoteMarker(lineText: string) {
     noteType: autoNoteMarkerTypes[markerMatch[1]] || 'note',
     markerLength: markerMatch[0].length,
   }
+}
+
+function detectAutoNoteStart(lines: InlineLineSegment[][]) {
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+    const lineText = getLineText(lines[lineIndex])
+
+    if (!lineText.trim()) {
+      continue
+    }
+
+    const detectedNote = detectAutoNoteMarker(lineText)
+
+    return detectedNote
+      ? {
+          ...detectedNote,
+          lineIndex,
+        }
+      : null
+  }
+
+  return null
 }
 
 function trimEmptyEdgeLines(lines: InlineLineSegment[][]) {
@@ -348,16 +371,16 @@ function renderAutoNoteParagraph(block: PortableTextBlock, blockIndex: number) {
 
   const markDefs = Array.isArray(block.markDefs) ? block.markDefs : []
   const lines = getInlineLineSegments(block)
-  const firstLine = lines[0] || []
-  const detectedNote = detectAutoNoteMarker(getLineText(firstLine))
+  const detectedNote = detectAutoNoteStart(lines)
 
   if (!detectedNote) {
     return null
   }
 
+  const markerLine = lines[detectedNote.lineIndex] || []
   const contentLines = trimEmptyEdgeLines([
-    removeLeadingText(firstLine, detectedNote.markerLength),
-    ...lines.slice(1),
+    removeLeadingText(markerLine, detectedNote.markerLength),
+    ...lines.slice(detectedNote.lineIndex + 1),
   ])
 
   if (contentLines.length === 0) {
@@ -555,16 +578,16 @@ function renderArticleNote(block: PortableTextBlock, blockIndex: number) {
 }
 
 function renderBlockContent(block: PortableTextBlock, blockIndex: number) {
-  const markdownContent = renderMarkdownTextLines(block, blockIndex)
-
-  if (markdownContent) {
-    return markdownContent
-  }
-
   const autoNoteContent = renderAutoNoteParagraph(block, blockIndex)
 
   if (autoNoteContent) {
     return autoNoteContent
+  }
+
+  const markdownContent = renderMarkdownTextLines(block, blockIndex)
+
+  if (markdownContent) {
+    return markdownContent
   }
 
   const children = renderInlineChildren(block, blockIndex).filter(Boolean)
