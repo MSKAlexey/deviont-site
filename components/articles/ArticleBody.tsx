@@ -1,6 +1,6 @@
 import {Fragment} from 'react'
 import type {ReactNode} from 'react'
-import SectionCardImage from '../sections/SectionCardImage'
+import ArticleImageZoom from './ArticleImageZoom'
 import {resolveHeroTypographyStyle} from '../sections/heroTypography'
 
 type PortableTextSpan = {
@@ -557,26 +557,21 @@ function renderArticleImage(block: PortableTextBlock, blockIndex: number) {
   const height = ratio ? Math.round((width / ratio.width) * ratio.height) : undefined
 
   return (
-    <figure
+    <ArticleImageZoom
       key={block._key || `article-image-${blockIndex}`}
-      className={getClassName(
+      image={block}
+      alt={block.alt || block.caption || ''}
+      caption={block.caption || ''}
+      width={width}
+      height={height}
+      fit={ratio ? 'crop' : undefined}
+      sizes="(max-width: 720px) calc(100vw - 56px), (max-width: 1180px) calc(100vw - 112px), 820px"
+      figureClassName={getClassName(
         'articleBodyFigure',
         articleImageSizeClasses[imageSize],
         articleImageAspectRatioClasses[imageAspectRatio]
       )}
-    >
-      <SectionCardImage
-        image={block}
-        alt={block.alt || block.caption || ''}
-        width={width}
-        height={height}
-        fit={ratio ? 'crop' : undefined}
-        sizes="(max-width: 720px) calc(100vw - 56px), (max-width: 1180px) calc(100vw - 112px), 820px"
-        wrapperClassName="articleBodyImageFrame"
-        imageClassName="articleBodyImage"
-      />
-      {block.caption ? <figcaption>{block.caption}</figcaption> : null}
-    </figure>
+    />
   )
 }
 
