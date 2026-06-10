@@ -113,16 +113,16 @@ export default function ArticleImageZoom({
           onClick={handleBackdropClick}
           role="dialog"
         >
-          <button
-            aria-label="Закрыть изображение"
-            className="articleImageViewerClose"
-            onClick={closeViewer}
-            type="button"
-          >
-            ×
-          </button>
-
           <div className="articleImageViewerPanel">
+            <button
+              aria-label="Закрыть изображение"
+              className="articleImageViewerClose"
+              onClick={closeViewer}
+              type="button"
+            >
+              ×
+            </button>
+
             <SectionCardImage
               image={image}
               alt={imageAlt}

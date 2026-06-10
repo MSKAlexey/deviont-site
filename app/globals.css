@@ -1790,19 +1790,6 @@ textarea {
   cursor: zoom-in;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .articleImageZoomTrigger .articleBodyImage {
-    transition:
-      filter 160ms ease,
-      transform 160ms ease;
-  }
-
-  .articleImageZoomTrigger:hover .articleBodyImage {
-    filter: saturate(1.03);
-    transform: scale(1.01);
-  }
-}
-
 .articleImageViewer {
   position: fixed;
   inset: 0;
@@ -1816,17 +1803,18 @@ textarea {
 }
 
 .articleImageViewerPanel {
+  position: relative;
   display: grid;
   justify-items: center;
   gap: 12px;
-  max-width: 96vw;
+  max-width: calc(96vw - 44px);
   max-height: 94vh;
 }
 
 .articleImageViewerFrame {
   display: grid;
   place-items: center;
-  max-width: 96vw;
+  max-width: calc(96vw - 44px);
   max-height: 88vh;
   line-height: 0;
 }
@@ -1835,7 +1823,7 @@ textarea {
   display: block;
   width: auto;
   height: auto;
-  max-width: 96vw;
+  max-width: calc(96vw - 44px);
   max-height: 88vh;
   border-radius: 16px;
   background: #ffffff;
@@ -1847,7 +1835,7 @@ textarea {
 }
 
 .articleImageViewerCaption {
-  max-width: min(920px, 96vw);
+  max-width: min(920px, calc(96vw - 44px));
   margin: 0;
   color: #f5f8fb;
   font-size: 0.95rem;
@@ -1856,20 +1844,20 @@ textarea {
 }
 
 .articleImageViewerClose {
-  position: fixed;
-  top: 18px;
-  right: 18px;
-  z-index: 1;
+  position: absolute;
+  top: -24px;
+  right: -24px;
+  z-index: 2;
   display: inline-grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 58px;
+  height: 58px;
   border: 1px solid rgba(255, 255, 255, 0.38);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.95);
   color: var(--text);
   cursor: pointer;
-  font-size: 2rem;
+  font-size: 2.45rem;
   line-height: 1;
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2);
 }
@@ -1884,18 +1872,26 @@ textarea {
     padding: 14px;
   }
 
+  .articleImageViewerPanel {
+    max-width: calc(96vw - 24px);
+  }
+
   .articleImageViewerFrame,
   .articleImageViewerImage {
-    max-width: 96vw;
+    max-width: calc(96vw - 24px);
     max-height: 82vh;
   }
 
+  .articleImageViewerCaption {
+    max-width: calc(96vw - 24px);
+  }
+
   .articleImageViewerClose {
-    top: 12px;
-    right: 12px;
-    width: 40px;
-    height: 40px;
-    font-size: 1.8rem;
+    top: -18px;
+    right: -18px;
+    width: 50px;
+    height: 50px;
+    font-size: 2.15rem;
   }
 }
 
