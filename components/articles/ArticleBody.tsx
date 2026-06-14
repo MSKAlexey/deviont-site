@@ -417,7 +417,7 @@ function renderMarkdownTextLines(block: PortableTextBlock, blockIndex: number) {
   const markDefs = Array.isArray(block.markDefs) ? block.markDefs : []
   const lines = getInlineLineSegments(block)
   const hasMarkdownHeading = lines.some((line) => /^#{2,3}\s+/.test(getLineText(line)))
-  const hasMarkdownList = lines.some((line) => /^-\s+/.test(getLineText(line)))
+  const hasMarkdownList = lines.some((line) => /^[*-]\s+/.test(getLineText(line)))
 
   if (!hasMarkdownHeading && !hasMarkdownList) {
     return null
@@ -492,7 +492,7 @@ function renderMarkdownTextLines(block: PortableTextBlock, blockIndex: number) {
     const lineText = getLineText(line)
     const h3Match = lineText.match(/^###\s+/)
     const h2Match = lineText.match(/^##\s+/)
-    const listMatch = lineText.match(/^-\s+/)
+    const listMatch = lineText.match(/^[*-]\s+/)
 
     if (h3Match || h2Match) {
       flushParagraph()
