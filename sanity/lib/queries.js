@@ -377,14 +377,6 @@ export const articlesListQuery = `*[
   ${articleListProjection}
 }`
 
-export const homepageArticlesQuery = `*[
-  _type == "article" &&
-  isVisible != false &&
-  defined(slug.current)
-] | order(coalesce(updatedAt, publishedAt, _updatedAt, _createdAt) desc, _createdAt desc)[0...4]{
-  ${articleListProjection}
-}`
-
 export const articleBySlugQuery = `*[
   _type == "article" &&
   isVisible != false &&
