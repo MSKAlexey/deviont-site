@@ -3,6 +3,7 @@ import {
   findServiceBySlug,
   findServiceByTitle,
   getServiceHref,
+  isPromotedService,
   resolveServiceSlug,
 } from '../../lib/services'
 import ArticleBody from '../articles/ArticleBody'
@@ -219,6 +220,19 @@ function resolveLinkedService(item, services, sectionId) {
   return cardTitle ? findServiceByTitle(services, cardTitle) : null
 }
 
+function getCatalogServiceCount(services) {
+  if (!Array.isArray(services)) {
+    return 0
+  }
+
+  return services.filter(
+    (service) =>
+      service?.isVisible !== false &&
+      Boolean(getServiceHref(service)) &&
+      isPromotedService(service)
+  ).length
+}
+
 export default function CardsBlockSection({block, sectionId, services}) {
   const sectionTitleContent = block?.titleContent?.content
   const sectionTitlePlainText = getHeroRichTextPlainText(sectionTitleContent)
@@ -242,6 +256,10 @@ export default function CardsBlockSection({block, sectionId, services}) {
     ) : (
       sectionTitle
     )
+  const catalogServiceCount =
+    sectionId === 'services' ? getCatalogServiceCount(services) : 0
+  const displayedServiceCount = block.items.length
+  const hasAdditionalServices = catalogServiceCount > displayedServiceCount
 
   return (
     <section className="section" id={sectionId}>
@@ -317,6 +335,21 @@ export default function CardsBlockSection({block, sectionId, services}) {
             )
           })}
         </div>
+
+        {hasAdditionalServices ? (
+          <Link href="/services" className="servicesCatalogCta">
+            <span className="servicesCatalogCtaCopy">
+              <strong>Все услуги 1С</strong>
+              <span>
+                {`На главной показаны основные направления — ${displayedServiceCount} из ${catalogServiceCount}.`}
+              </span>
+            </span>
+            <span className="servicesCatalogCtaAction">
+              Смотреть все
+              <span aria-hidden="true">→</span>
+            </span>
+          </Link>
+        ) : null}
       </div>
     </section>
   )
