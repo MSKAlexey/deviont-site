@@ -130,7 +130,6 @@ export default async function ArticlesPage({
 
             <header className="articlesPageHead articlesIndexHead">
               <h1>Статьи и инструкции</h1>
-              <p>Экспертные материалы, пошаговые инструкции и разборы ошибок по 1С.</p>
             </header>
 
             <nav className="articleFilters" aria-label="Фильтр материалов">
