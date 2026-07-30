@@ -3,6 +3,7 @@ import CertificatesBlockSection from './CertificatesBlockSection'
 import ContactsSection from './ContactsSection'
 import CtaSection from './CtaSection'
 import HeroSection from './HeroSection'
+import HomeArticlesSection from './HomeArticlesSection'
 import ListBlockSection from './ListBlockSection'
 import TextBlockSection from './TextBlockSection'
 import {resolveSectionId} from './sectionIds'
@@ -67,22 +68,38 @@ export default function SectionRenderer({sections, ...data}) {
   const resolvedSections = Array.isArray(sections)
     ? sections.filter((section) => section?.isActive !== false)
     : []
+  const homepageArticles = Array.isArray(data.homepageArticles)
+    ? data.homepageArticles
+    : []
 
-  return resolvedSections.map((section, index) => {
+  return resolvedSections.flatMap((section, index) => {
     const sectionId = resolveSectionId(section)
     const blockConfig = section?._type ? blockRegistry[section._type] : null
 
     if (blockConfig) {
       const BlockComponent = blockConfig.component
 
-      return (
+      const renderedSection = (
         <BlockComponent
           key={section?._key || `${section._type}-${index}`}
           section={section}
           {...blockConfig.selectProps({section, sectionId, ...data})}
         />
       )
+
+      if (sectionId === 'services' && homepageArticles.length > 0) {
+        return [
+          renderedSection,
+          <HomeArticlesSection
+            key="home-articles"
+            articles={homepageArticles}
+          />,
+        ]
+      }
+
+      return renderedSection
     }
-    return null
+
+    return []
   })
 }

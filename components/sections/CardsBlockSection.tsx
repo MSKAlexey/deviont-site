@@ -3,6 +3,7 @@ import {
   findServiceBySlug,
   findServiceByTitle,
   getServiceHref,
+  isPromotedService,
   resolveServiceSlug,
 } from '../../lib/services'
 import ArticleBody from '../articles/ArticleBody'
@@ -219,6 +220,19 @@ function resolveLinkedService(item, services, sectionId) {
   return cardTitle ? findServiceByTitle(services, cardTitle) : null
 }
 
+function getCatalogServiceCount(services) {
+  if (!Array.isArray(services)) {
+    return 0
+  }
+
+  return services.filter(
+    (service) =>
+      service?.isVisible !== false &&
+      Boolean(getServiceHref(service)) &&
+      isPromotedService(service)
+  ).length
+}
+
 export default function CardsBlockSection({block, sectionId, services}) {
   const sectionTitleContent = block?.titleContent?.content
   const sectionTitlePlainText = getHeroRichTextPlainText(sectionTitleContent)
@@ -234,8 +248,12 @@ export default function CardsBlockSection({block, sectionId, services}) {
   ) : (
     renderHeroMultilineText(block.title, 'cards-block-title')
   )
+  const catalogServiceCount =
+    sectionId === 'services' ? getCatalogServiceCount(services) : 0
+  const displayedServiceCount = block.items.length
+  const hasAdditionalServices = catalogServiceCount > displayedServiceCount
   const sectionTitleNode =
-    sectionId === 'services' ? (
+    sectionId === 'services' && !hasAdditionalServices ? (
       <Link href="/services" className="sectionTitleLink">
         {sectionTitle}
       </Link>
@@ -246,7 +264,23 @@ export default function CardsBlockSection({block, sectionId, services}) {
   return (
     <section className="section" id={sectionId}>
       <div className="container">
-        <SectionHeading title={sectionTitleNode} />
+        {hasAdditionalServices ? (
+          <SectionHeading
+            title={sectionTitleNode}
+            description={
+              <span className="servicesSectionMeta">
+                <span>Основные направления</span>
+                <span aria-hidden="true">·</span>
+                <Link href="/services" className="servicesCatalogLink">
+                  {`Смотреть все ${catalogServiceCount} услуг`}
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </span>
+            }
+          />
+        ) : (
+          <SectionHeading title={sectionTitleNode} />
+        )}
 
         <div className="sectionCardsGrid sectionCardsGridThree">
           {block.items.map((item) => {
@@ -317,6 +351,7 @@ export default function CardsBlockSection({block, sectionId, services}) {
             )
           })}
         </div>
+
       </div>
     </section>
   )

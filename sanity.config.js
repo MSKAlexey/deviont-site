@@ -5,6 +5,7 @@ import {visionTool} from '@sanity/vision'
 import {structureTool} from 'sanity/structure'
 import {schemaTypes} from './sanity/schemaTypes/index.js'
 import {structure} from './sanity/structure.js'
+import {dataset, projectId} from './sanity/env.js'
 import {createDeleteCardsBlockDocumentAction} from './sanity/documentActions/deleteCardsBlockDocumentAction.js'
 import {
   SaveArticleRevisionAction,
@@ -47,8 +48,8 @@ function resolveNewDocumentOptions(previousOptions) {
 export default defineConfig({
   name: 'default',
   title: 'DEVIONT Studio',
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  projectId,
+  dataset,
   basePath: '/studio',
   plugins: [
     structureTool({structure}),
