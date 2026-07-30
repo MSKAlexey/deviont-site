@@ -248,23 +248,33 @@ export default function CardsBlockSection({block, sectionId, services}) {
   ) : (
     renderHeroMultilineText(block.title, 'cards-block-title')
   )
+  const catalogServiceCount =
+    sectionId === 'services' ? getCatalogServiceCount(services) : 0
+  const displayedServiceCount = block.items.length
+  const hasAdditionalServices = catalogServiceCount > displayedServiceCount
   const sectionTitleNode =
-    sectionId === 'services' ? (
+    sectionId === 'services' && !hasAdditionalServices ? (
       <Link href="/services" className="sectionTitleLink">
         {sectionTitle}
       </Link>
     ) : (
       sectionTitle
     )
-  const catalogServiceCount =
-    sectionId === 'services' ? getCatalogServiceCount(services) : 0
-  const displayedServiceCount = block.items.length
-  const hasAdditionalServices = catalogServiceCount > displayedServiceCount
 
   return (
     <section className="section" id={sectionId}>
       <div className="container">
-        <SectionHeading title={sectionTitleNode} />
+        {hasAdditionalServices ? (
+          <div className="servicesSectionHead">
+            <SectionHeading title={sectionTitleNode} />
+            <Link href="/services" className="servicesCatalogLink">
+              {`Все ${catalogServiceCount} услуг`}
+              <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+        ) : (
+          <SectionHeading title={sectionTitleNode} />
+        )}
 
         <div className="sectionCardsGrid sectionCardsGridThree">
           {block.items.map((item) => {
@@ -336,20 +346,6 @@ export default function CardsBlockSection({block, sectionId, services}) {
           })}
         </div>
 
-        {hasAdditionalServices ? (
-          <Link href="/services" className="servicesCatalogCta">
-            <span className="servicesCatalogCtaCopy">
-              <strong>Все услуги 1С</strong>
-              <span>
-                {`На главной показаны основные направления — ${displayedServiceCount} из ${catalogServiceCount}.`}
-              </span>
-            </span>
-            <span className="servicesCatalogCtaAction">
-              Смотреть все
-              <span aria-hidden="true">→</span>
-            </span>
-          </Link>
-        ) : null}
       </div>
     </section>
   )
