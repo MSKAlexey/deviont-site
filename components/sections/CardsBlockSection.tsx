@@ -265,13 +265,19 @@ export default function CardsBlockSection({block, sectionId, services}) {
     <section className="section" id={sectionId}>
       <div className="container">
         {hasAdditionalServices ? (
-          <div className="servicesSectionHead">
-            <SectionHeading title={sectionTitleNode} />
-            <Link href="/services" className="servicesCatalogLink">
-              {`Все ${catalogServiceCount} услуг`}
-              <span aria-hidden="true">→</span>
-            </Link>
-          </div>
+          <SectionHeading
+            title={sectionTitleNode}
+            description={
+              <span className="servicesSectionMeta">
+                <span>Основные направления</span>
+                <span aria-hidden="true">·</span>
+                <Link href="/services" className="servicesCatalogLink">
+                  {`Смотреть все ${catalogServiceCount} услуг`}
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </span>
+            }
+          />
         ) : (
           <SectionHeading title={sectionTitleNode} />
         )}
