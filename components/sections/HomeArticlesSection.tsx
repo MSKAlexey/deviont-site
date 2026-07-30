@@ -2,40 +2,58 @@ import Link from 'next/link'
 import ArticleMeta, {getArticleTypeLabel} from '../articles/ArticleMeta'
 import SectionCardImage from './SectionCardImage'
 
-function getArticleTypeClass(value?: string | null) {
-  if (value === 'instruction') {
-    return 'articleTypeBadgeInstruction'
+function getPlaceholderLabel(article: any) {
+  const title = String(article?.title || '').toLocaleLowerCase('ru-RU')
+
+  if (title.includes('рмк')) {
+    return 'РМК'
   }
 
-  if (value === 'error') {
-    return 'articleTypeBadgeError'
+  if (title.includes('обмен') || title.includes('регистрац')) {
+    return '↻'
   }
 
-  return 'articleTypeBadgeArticle'
+  return '1С'
 }
 
-function ArticleTypeBadge({article}: {article: any}) {
-  return (
-    <span className={`articleTypeBadge ${getArticleTypeClass(article?.materialType)}`}>
-      {getArticleTypeLabel(article?.materialType)}
-    </span>
-  )
-}
+function HomeArticleCard({article}: {article: any}) {
+  const hasDate = article?.updatedAt || article?.publishedAt
 
-function CompactArticle({article}: {article: any}) {
   return (
-    <Link href={`/articles/${article.slug}`} className="homeArticleCompactLink">
-      <article className="infoCard homeArticleCompact">
-        <div className="homeArticleCompactTop">
-          <ArticleTypeBadge article={article} />
-          <ArticleMeta
-            publishedAt={article.publishedAt}
-            updatedAt={article.updatedAt}
-            className="homeArticleCompactMeta"
+    <Link href={`/articles/${article.slug}`} className="homeArticleCardLink">
+      <article className="infoCard homeArticleCard">
+        {article.coverImage?.asset ? (
+          <SectionCardImage
+            image={article.coverImage}
+            alt={article.coverImageAlt || article.title}
+            width={720}
+            height={430}
+            fit="crop"
+            sizes="(max-width: 720px) calc(100vw - 64px), (max-width: 1024px) 50vw, 33vw"
+            wrapperClassName="homeArticleCardMedia"
+            imageClassName="homeArticleCardImage"
           />
+        ) : (
+          <div className="homeArticleCardMedia homeArticleCardPlaceholder" aria-hidden="true">
+            <span>{getPlaceholderLabel(article)}</span>
+          </div>
+        )}
+
+        <div className="homeArticleCardBody">
+          {hasDate ? (
+            <ArticleMeta
+              publishedAt={article.publishedAt}
+              updatedAt={article.updatedAt}
+              className="homeArticleCardMeta"
+            />
+          ) : (
+            <span className="homeArticleCardType">
+              {getArticleTypeLabel(article.materialType)}
+            </span>
+          )}
+          <h3>{article.title}</h3>
+          {article.excerpt ? <p>{article.excerpt}</p> : null}
         </div>
-        <h3 className="homeArticleCompactTitle">{article.title}</h3>
-        <span className="homeArticleReadMore">Читать →</span>
       </article>
     </Link>
   )
@@ -43,11 +61,10 @@ function CompactArticle({article}: {article: any}) {
 
 export default function HomeArticlesSection({articles}: {articles: any[]}) {
   const resolvedArticles = Array.isArray(articles)
-    ? articles.filter((article) => article?.slug && article?.title).slice(0, 4)
+    ? articles.filter((article) => article?.slug && article?.title).slice(0, 3)
     : []
-  const [featuredArticle, ...compactArticles] = resolvedArticles
 
-  if (!featuredArticle) {
+  if (resolvedArticles.length === 0) {
     return null
   }
 
@@ -55,67 +72,17 @@ export default function HomeArticlesSection({articles}: {articles: any[]}) {
     <section className="section homeArticlesSection" id="home-articles">
       <div className="container">
         <div className="homeArticlesHead">
-          <div className="homeArticlesHeading">
-            <h2>Статьи</h2>
-            <p>Практические инструкции и разборы по 1С</p>
-          </div>
+          <h2>Статьи</h2>
           <Link href="/articles" className="homeArticlesAllLink">
             Все статьи
             <span aria-hidden="true">→</span>
           </Link>
         </div>
 
-        <div className="homeArticlesLayout">
-          <Link
-            href={`/articles/${featuredArticle.slug}`}
-            className="homeArticleFeaturedLink"
-          >
-            <article className="infoCard homeArticleFeatured">
-              {featuredArticle.coverImage?.asset ? (
-                <SectionCardImage
-                  image={featuredArticle.coverImage}
-                  alt={featuredArticle.coverImageAlt || featuredArticle.title}
-                  width={880}
-                  height={430}
-                  fit="crop"
-                  sizes="(max-width: 900px) calc(100vw - 48px), 620px"
-                  wrapperClassName="homeArticleFeaturedMedia"
-                  imageClassName="homeArticleFeaturedImage"
-                />
-              ) : (
-                <div
-                  className="homeArticleFeaturedMedia homeArticleFeaturedPlaceholder"
-                  aria-hidden="true"
-                >
-                  <span>1С</span>
-                </div>
-              )}
-
-              <div className="homeArticleFeaturedBody">
-                <div className="homeArticleFeaturedMeta">
-                  <span className="homeArticleNewLabel">Новая статья</span>
-                  <ArticleMeta
-                    publishedAt={featuredArticle.publishedAt}
-                    updatedAt={featuredArticle.updatedAt}
-                    className="homeArticleDate"
-                  />
-                </div>
-                <h3 className="homeArticleFeaturedTitle">{featuredArticle.title}</h3>
-                {featuredArticle.excerpt ? (
-                  <p className="homeArticleFeaturedExcerpt">{featuredArticle.excerpt}</p>
-                ) : null}
-                <span className="homeArticleReadMore">Читать статью →</span>
-              </div>
-            </article>
-          </Link>
-
-          {compactArticles.length > 0 ? (
-            <div className="homeArticleList">
-              {compactArticles.map((article) => (
-                <CompactArticle key={article._id || article.slug} article={article} />
-              ))}
-            </div>
-          ) : null}
+        <div className="homeArticleGrid">
+          {resolvedArticles.map((article) => (
+            <HomeArticleCard key={article._id || article.slug} article={article} />
+          ))}
         </div>
       </div>
     </section>
