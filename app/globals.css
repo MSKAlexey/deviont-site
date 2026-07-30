@@ -429,6 +429,8 @@ textarea {
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s ease;
+}
+
 .homeArticleCardMedia {
   display: grid;
   overflow: hidden;
