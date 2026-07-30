@@ -25,7 +25,7 @@ function ArticleTypeBadge({article}: {article: any}) {
 function CompactArticle({article}: {article: any}) {
   return (
     <Link href={`/articles/${article.slug}`} className="homeArticleCompactLink">
-      <article className="homeArticleCompact">
+      <article className="infoCard homeArticleCompact">
         <div className="homeArticleCompactTop">
           <ArticleTypeBadge article={article} />
           <ArticleMeta
@@ -55,7 +55,10 @@ export default function HomeArticlesSection({articles}: {articles: any[]}) {
     <section className="section homeArticlesSection" id="home-articles">
       <div className="container">
         <div className="homeArticlesHead">
-          <h2>Статьи</h2>
+          <div className="homeArticlesHeading">
+            <h2>Статьи</h2>
+            <p>Практические инструкции и разборы по 1С</p>
+          </div>
           <Link href="/articles" className="homeArticlesAllLink">
             Все статьи
             <span aria-hidden="true">→</span>
