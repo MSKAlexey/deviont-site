@@ -1,7 +1,7 @@
 import type {Metadata} from 'next'
 import Link from 'next/link'
 import HeaderClient from '../../components/HeaderClient'
-import ArticleMeta, {getArticleTypeLabel} from '../../components/articles/ArticleMeta'
+import {getArticleTypeLabel} from '../../components/articles/ArticleMeta'
 import ContactModalTrigger from '../../components/contact/ContactModalTrigger'
 import {client} from '../../sanity/lib/client'
 import {articlesListQuery, siteSettingsQuery} from '../../sanity/lib/queries'
@@ -81,16 +81,28 @@ function resolveSelectedType(searchParams: ArticleSearchParams) {
   return null
 }
 
-function getArticleTypeClass(value?: string | null) {
+function getArticleListTypeClass(value?: string | null) {
   if (value === 'instruction') {
-    return 'articleTypeBadgeInstruction'
+    return 'articleListTypeInstruction'
   }
 
   if (value === 'error') {
-    return 'articleTypeBadgeError'
+    return 'articleListTypeError'
   }
 
-  return 'articleTypeBadgeArticle'
+  return 'articleListTypeArticle'
+}
+
+function getArticleTypeIcon(value?: string | null) {
+  if (value === 'instruction') {
+    return '✓'
+  }
+
+  if (value === 'error') {
+    return '!'
+  }
+
+  return '▤'
 }
 
 function getVisibleRelatedService(article: any) {
@@ -149,7 +161,7 @@ export default async function ArticlesPage({
             </nav>
 
             {resolvedArticles.length > 0 ? (
-              <div className="articleCardsGrid">
+              <div className="articleList">
                 {resolvedArticles.map((article: any) => {
                   const relatedService = getVisibleRelatedService(article)
 
@@ -157,30 +169,27 @@ export default async function ArticlesPage({
                     <Link
                       key={article._id}
                       href={`/articles/${article.slug}`}
-                      className="articleCardLink"
+                      className={`articleListRow ${getArticleListTypeClass(article.materialType)}`}
                     >
-                      <article className="infoCard articleCard articleMaterialCard">
-                        <div className="articleCardBody">
-                          <span
-                            className={`articleTypeBadge ${getArticleTypeClass(article.materialType)}`}
-                          >
-                            {getArticleTypeLabel(article.materialType)}
+                      <article className="articleListItem">
+                        <div className="articleListType">
+                          <span className="articleListTypeIcon" aria-hidden="true">
+                            {getArticleTypeIcon(article.materialType)}
                           </span>
-                          <h2 className="articleCardTitle">{article.title}</h2>
-                          {article.excerpt ? (
-                            <p className="articleCardExcerpt">{article.excerpt}</p>
-                          ) : null}
-                          <div className="articleCardFooter">
-                            <ArticleMeta
-                              publishedAt={article.publishedAt}
-                              updatedAt={article.updatedAt}
-                              oneCConfiguration={article.oneCConfiguration}
-                              oneCVersion={article.oneCVersion}
-                              relatedServiceTitle={relatedService?.title}
-                            />
-                            <span className="articleCardMore">Читать →</span>
-                          </div>
+                          <span>{getArticleTypeLabel(article.materialType)}</span>
                         </div>
+
+                        <div className="articleListContent">
+                          {relatedService?.title ? (
+                            <span className="articleListSection">{relatedService.title}</span>
+                          ) : null}
+                          <h2 className="articleListTitle">{article.title}</h2>
+                          {article.excerpt ? (
+                            <p className="articleListExcerpt">{article.excerpt}</p>
+                          ) : null}
+                        </div>
+
+                        <span className="articleListArrow" aria-hidden="true">→</span>
                       </article>
                     </Link>
                   )
