@@ -1019,7 +1019,7 @@ textarea {
 
 .articleListItem {
   display: grid;
-  grid-template-columns: 150px minmax(0, 1fr) auto;
+  grid-template-columns: 150px minmax(0, 1fr);
   gap: 24px;
   align-items: center;
   min-height: 148px;
@@ -1081,17 +1081,6 @@ textarea {
   -webkit-line-clamp: 2;
   color: var(--muted);
   line-height: 1.6;
-}
-
-.articleListArrow {
-  color: var(--article-list-type);
-  font-size: 1.3rem;
-  font-weight: 700;
-  transition: transform 0.2s ease;
-}
-
-.articleListRow:hover .articleListArrow {
-  transform: translateX(3px);
 }
 
 .articleCardsGrid {
@@ -2726,7 +2715,7 @@ textarea {
   }
 
   .articleListItem {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     gap: 14px;
     min-height: 0;
     padding: 20px;

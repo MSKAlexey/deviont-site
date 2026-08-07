@@ -188,8 +188,6 @@ export default async function ArticlesPage({
                             <p className="articleListExcerpt">{article.excerpt}</p>
                           ) : null}
                         </div>
-
-                        <span className="articleListArrow" aria-hidden="true">→</span>
                       </article>
                     </Link>
                   )
